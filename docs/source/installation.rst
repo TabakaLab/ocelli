@@ -17,5 +17,9 @@ ForceAtlas2 requires the Java Development Kit. Download and install it by runnin
 
     sudo apt update
     sudo apt install default-jdk
+    
+For maximum performance of approximated nearest neighbors search using ``nmslib``, you can install it from sources::
+
+    pip install --no-binary :all: nmslib
 
 .. _PyPI: https://pypi.org/project/ocelli
