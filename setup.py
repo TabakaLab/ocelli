@@ -17,7 +17,7 @@ setup(
                       'scikit-learn>=1.0',
                       'scipy>=1.7.1',
                       'statsmodels>=0.13.0',
-                      'sphinx>=1.4','
+                      'sphinx>=1.4',
                       'ipykernel',
                       'nbsphinx'],
     
