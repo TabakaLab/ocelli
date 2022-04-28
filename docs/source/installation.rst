@@ -1,14 +1,21 @@
 Installation
 ------------
 
-Ocelli requires Python 3.6 or later.
+Ocelli requires Python 3.7 or later.
 
 PyPI
 ^^^^
 
-Install Ocelli from PyPI_ using::
+Pull Ocelli from PyPI_ using (consider using `pip3` to access Python 3)::
 
-    pip install -U ocelli
+    pip install ocelli
 
 Dependencies
 ^^^^^^^^^^^^
+
+ForceAtlas2 requires the Java Development Kit. Download and install it by running::
+
+    sudo apt update
+    sudo apt install default-jdk
+
+.. _PyPI: https://pypi.org/project/ocelli
