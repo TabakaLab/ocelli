@@ -1,9 +1,6 @@
 ipykernel
-sphinx>=1.7,<4.0
-nbsphinx>=0.7,<0.8.7
-setuptools
-setuptools_scm
-typing_extensions
-importlib_metadata
+sphinx>=1.7
+nbsphinx>=0.7
+import setuptools
 sphinx_rtd_theme>=0.3
 sphinx_autodoc_typehints<=1.6
