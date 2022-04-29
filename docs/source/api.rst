@@ -1,3 +1,4 @@
+.. module:: ocelli
 .. automodule:: ocelli
 
 API
@@ -11,17 +12,20 @@ Import Ocelli as::
 Preprocessing (pp)
 ------------------
 
+.. module:: ocelli.pp
+.. currentmodule:: ocelli
+
 **Nearest neighbors**
 
 .. autosummary::
-   :toctree: .
+   :toctree: generated/
 
    pp.neighbors 
    
 **Topic modeling**
    
 .. autosummary::
-   :toctree: .
+   :toctree: generated/
 
    pp.latent_dirichlet_allocation
    pp.generate_views
@@ -30,10 +34,13 @@ Preprocessing (pp)
 Tools (tl)
 ----------
 
+.. module:: ocelli.tl
+.. currentmodule:: ocelli
+
 **Multi-view diffusion maps**
 
 .. autosummary::
-   :toctree: .
+   :toctree: generated/
    
    tl.weights
    tl.scale_weights
@@ -43,7 +50,7 @@ Tools (tl)
 **Graph representations**
 
 .. autosummary::
-   :toctree: .
+   :toctree: generated/
    
    tl.nn_graph
    tl.vel_graph
@@ -51,7 +58,7 @@ Tools (tl)
 **Plotting tools**
 
 .. autosummary::
-   :toctree: .
+   :toctree: generated/
    
    tl.forceatlas2
    tl.project_2d
@@ -59,7 +66,7 @@ Tools (tl)
 **Gene signatures**
 
 .. autosummary::
-   :toctree: .
+   :toctree: generated/
    
    tl.z_scores
    
@@ -67,8 +74,11 @@ Tools (tl)
 Plotting (pl)
 -------------
 
+.. module:: ocelli.pl
+.. currentmodule:: ocelli
+
 .. autosummary::
-   :toctree: .
+   :toctree: generated/
    
    pl.scatter
    pl.weights
