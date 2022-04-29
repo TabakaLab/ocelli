@@ -79,4 +79,4 @@ html_theme = 'sphinx_rtd_theme'
 
 source_suffix = [".rst"]
 
-html_static_path = []
+html_static_path = ['_static']
