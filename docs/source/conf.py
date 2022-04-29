@@ -41,8 +41,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.githubpages",
     'sphinx.ext.duration',
-    "nbsphinx",
-    "edit_on_github",
+    "nbsphinx"
 ]
 
 # Napoleon settings
