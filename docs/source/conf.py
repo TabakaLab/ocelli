@@ -41,7 +41,6 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.githubpages",
     'sphinx.ext.duration',
-    "sphinx_autodoc_typehints",
     "nbsphinx",
     "edit_on_github",
 ]
