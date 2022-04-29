@@ -33,14 +33,15 @@ release = '0.1.0'
 # ones.
 extensions = [
     'sphinx.ext.napoleon',
-   'sphinx.ext.duration',
-   'sphinx.ext.doctest',
-   'sphinx.ext.autodoc',
-   'sphinx.ext.autosummary',
-   'sphinx.ext.mathjax',
+    'sphinx.ext.duration',
+    'sphinx.ext.doctest',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.mathjax',
     'nbsphinx',
 ]
 
+autosummary_generate = True
 # Napoleon settings
 napoleon_google_docstring = True
 napoleon_numpy_docstring = True
