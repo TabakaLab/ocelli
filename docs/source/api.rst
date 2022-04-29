@@ -14,17 +14,17 @@ Preprocessing (pp)
 **Nearest neighbors**
 
 .. autosummary::
-   :toctree: pp
+   :toctree: .
 
-   neighbors 
+   pp.neighbors 
    
 **Topic modeling**
    
 .. autosummary::
-   :toctree: pp
+   :toctree: .
 
-   latent_dirichlet_allocation
-   generate_views
+   pp.latent_dirichlet_allocation
+   pp.generate_views
    
 
 Tools (tl)
