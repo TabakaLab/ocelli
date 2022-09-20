@@ -4,7 +4,7 @@ import numpy as np
 from anndata import AnnData
 
 
-def latent_dirichlet_allocation(adata: AnnData,
+def LDA(adata: AnnData,
                                 x_key = None,
                                 lda_key: str = 'lda',
                                 n_topics: int = 10,

@@ -1,7 +1,7 @@
 Installation
 ------------
 
-Ocelli requires Python 3.7 or later.
+Ocelli requires Python 3.7.
 
 PyPI
 ^^^^

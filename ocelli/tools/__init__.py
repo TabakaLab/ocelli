@@ -1,16 +1,16 @@
 from .weights import weights, scale_weights
-from .mvdm import multi_view_diffusion_maps
 from .graphs import nn_graph, vel_graph
-from .visualizations import forceatlas2, project_2d
-from .markers import z_scores
+from .dimension_reduction import MVDM, FA2, project_2d, UMAP
+from .markers import mean_z_scores
 
 __all__ = [
     'weights', 
     'scale_weights',
-    'multi_view_diffusion_maps',
+    'MVDM',
     'nn_graph',
     'vel_graph', 
-    'forceatlas2',
+    'FA2',
+    'UMAP',
     'mean_z_scores', 
     'project_2d'
 ]

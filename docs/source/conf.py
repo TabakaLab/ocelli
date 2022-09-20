@@ -9,7 +9,7 @@ project = 'Ocelli'
 copyright = '2022, Piotr Rutkowski'
 author = 'Piotr Rutkowski'
 
-release = '0.1.0'
+release = '0.1.1'
 
 extensions = [
     'sphinx.ext.napoleon',

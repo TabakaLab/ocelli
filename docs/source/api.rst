@@ -23,7 +23,7 @@ Preprocessing (pp)
 .. autosummary::
    :toctree: .
 
-   pp.latent_dirichlet_allocation
+   pp.LDA
    pp.generate_views
    
 
@@ -37,7 +37,7 @@ Tools (tl)
    
    tl.weights
    tl.scale_weights
-   tl.multi_view_diffusion_maps
+   tl.MVDM
    
    
 **Graph representations**
@@ -53,7 +53,8 @@ Tools (tl)
 .. autosummary::
    :toctree: .
    
-   tl.forceatlas2
+   tl.FA2
+   tl.UMAP
    tl.project_2d
 
 **Gene signatures**
@@ -61,7 +62,7 @@ Tools (tl)
 .. autosummary::
    :toctree: .
    
-   tl.z_scores
+   tl.mean_z_scores
    
    
 Plotting (pl)

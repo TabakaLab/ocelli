@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ocelli',
-    version='0.1.0',
+    version='0.1.1',
     
     python_requires='>=3.7',
     install_requires=['anndata>=0.7.6', 
@@ -42,7 +42,6 @@ setup(
         "Natural Language :: English",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
         "Topic :: Scientific/Engineering :: Bio-Informatics",
         "Topic :: Scientific/Engineering :: Visualization",
     ],

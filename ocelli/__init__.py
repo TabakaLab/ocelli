@@ -6,6 +6,6 @@ __all__ = [
     'tl',
 ]
 
-__version__ = "0.1.0"
+__version__ = '0.1.0'
 __author__ = 'Piotr Rutkowski'
 __credits__ = 'International Centre for Translational Eye Research'
