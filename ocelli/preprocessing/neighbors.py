@@ -4,6 +4,7 @@ from scipy.sparse import csr_matrix
 from sklearn.neighbors import NearestNeighbors
 from multiprocessing import cpu_count
 import anndata
+
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
@@ -66,7 +67,7 @@ def neighbors(adata: anndata.AnnData,
         If :obj:`None`, views' keys are loaded from ``adata.uns['key_views']``. (default: :obj:`None`)
     method
         The method used for the neareast neighbor search.
-        Possible options: ``sklearn``, ``nmslib``. (default: ``sklearn``)
+        Possible options: ``sklearn``, ``nmslib``. (default: `sklearn`)
     neighbors_key
         The nearest neighbors indices are saved in ``adata.uns[neighbors_key]``.
         (default: ``neighbors``)
@@ -88,9 +89,9 @@ def neighbors(adata: anndata.AnnData,
     -------
     :obj:`None`
         By default (``copy=False``), updates ``adata`` with the following fields:
-        ``adata.uns[neighbors_key]`` (:class:`numpy.ndarray` of shape ``(n_views, n_cells, n_neighbors)``),
-        ``adata.uns[epsilons_key]`` (:class:`numpy.ndarray` of shape ``(n_views, n_cells, n_neighbors)``),
-        ``adata.uns[distances_key]`` (:class:`numpy.ndarray` of shape ``(n_views, n_cells)``).
+        ``adata.uns[neighbors_key]`` (:class:`numpy.ndarray` of shape ``(n_views, n_obs, n_neighbors)``),
+        ``adata.uns[epsilons_key]`` (:class:`numpy.ndarray` of shape ``(n_views, n_obs)``),
+        ``adata.uns[distances_key]`` (:class:`numpy.ndarray` of shape ``(n_views, n_obs, n_neighbors)``).
     :class:`anndata.AnnData`
         When ``copy=True`` is set, a copy of ``adata`` with those fields is returned.
     """
