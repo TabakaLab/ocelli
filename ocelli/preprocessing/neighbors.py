@@ -51,10 +51,7 @@ def neighbors(adata: anndata.AnnData,
     Two  nearest neighbors search methods are available: ``sklearn``, and ``nmslib``. 
     Both can run on dense and sparse arrays.
     
-    ``sklearn`` method uses the :class:`scikit-learn` package and is teh default.
-    We recommend ``sklearn`` until its runtime noticeably increases. ``nmslib`` method uses the :class:`nmslib` package,
-    which is faster for very big datasets (hundreds of thousands of cells) but less accurate,
-    as it is an approximate nearest neighbors algorithm.
+    We recommend ``sklearn`` until its runtime noticeably increases.
 
     Parameters
     ----------
@@ -67,7 +64,13 @@ def neighbors(adata: anndata.AnnData,
         If :obj:`None`, views' keys are loaded from ``adata.uns['key_views']``. (default: :obj:`None`)
     method
         The method used for the neareast neighbor search.
-        Possible options: ``sklearn``, ``nmslib``. (default: `sklearn`)
+        
+        Valid options::
+        
+            'sklearn': uses the :class:`scikit-learn` package and is the default.
+            'nmslib': uses the :class:`nmslib` package, which is faster for very big datasets 
+            (hundreds of thousands of cells) but less accurate,
+            as it is an approximate nearest neighbors algorithm.
     neighbors_key
         The nearest neighbors indices are saved in ``adata.uns[neighbors_key]``.
         (default: ``neighbors``)

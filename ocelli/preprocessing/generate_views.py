@@ -55,7 +55,7 @@ def generate_views(adata: anndata.AnnData,
     """
 
     if lda_key not in list(adata.varm.keys()):
-        raise (KeyError('No topic modeling components found. Run oci.pp.LDA.'))
+        raise (KeyError('No topic modeling components found. Run ocelli.pp.LDA.'))
 
     n_topics = adata.uns['{}_params'.format(lda_key)]['n_components']
     D = {i: [] for i in range(n_topics)}
@@ -88,7 +88,7 @@ def generate_views(adata: anndata.AnnData,
             if verbose:
                 print('View {}: skipped, no genes selected.'.format(i))
 
-    if verbose
+    if verbose:
         print('{} topic-based views generated.'.format(topic_counter))
 
     return adata if copy else None

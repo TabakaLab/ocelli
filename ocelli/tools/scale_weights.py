@@ -2,7 +2,7 @@ import numpy as np
 from statsmodels.distributions.empirical_distribution import ECDF
 import ray
 from multiprocessing import cpu_count
-import anndata
+from anndata import AnnData
 import pandas as pd
 
 
@@ -98,43 +98,39 @@ class WeightEstimator():
 
         return weights
 
-    
-def weights(adata: anndata.AnnData, 
+
+def weights(adata: AnnData, 
             n_pairs: int = 1000, 
-            views = None,
+            view_keys = None,
             neighbors_key: str = 'neighbors',
-            weights_key: str = 'weights',
+            weights_key: str = 'weights', 
             n_jobs: int = -1,
-            random_state = None,
-            verbose: bool = False,
             copy: bool = False):
     """Multimodal cell-specific weights
     
-    Computes cell-specific weights for each modality.
+    For each cell view-specific weights are computed. 
+    They estimate which views contribute to the development of cell's neighborhood.
 
     Parameters
     ----------
     adata
         The annotated data matrix.
     n_pairs
-        Number of cell pairs used to estimate empirical cumulative
-        distribution functions of intercellular distances. (default: 1000)
-    views
-        A list of ``adata.obsm`` keys storing modalities.
-        If :obj:`None`, views' keys are loaded from ``adata.uns['key_views']``. (default: :obj:`None`)
+        The number of cell pairs used to estimate empirical cumulative
+        distribution functions of distances between cells.
+    view_keys
+        If :obj:`None`, view keys are loaded from ``adata.uns['key_views']``. Otherwise,
+        ``view_keys`` should be a :class:`list` of ``adata.obsm`` keys,
+        where views are stored. (default: :obj:`None`)
     neighbors_key
-        ``adata.uns[neighbors_key]`` stores the nearest neighbor indices
+        ``adata.uns[neighbors_key]`` stores the nearest neighbor indices 
         (:class:`numpy.ndarray` of shape ``(n_views, n_cells, n_neighbors)``).
         (default: ``neighbors``)
     weights_key
-        Weights will be saved to ``adata.obsm[weights_key]``. (default: `weights`)
+        The multi-view cell weights will be saved to ``adata.obsm[weights_key]``. (default: ``weights``)
     n_jobs
         The number of parallel jobs. If the number is larger than the number of CPUs, it is changed to -1.
         -1 means all processors are used. (default: -1)
-    random_state
-        Pass an :obj:`int` for reproducible results across multiple function calls. (default: :obj:`None`)
-    verbose
-        Print progress notifications. (default: ``False``)
     copy
         Return a copy of :class:`anndata.AnnData`. (default: ``False``)
 
@@ -148,29 +144,88 @@ def weights(adata: anndata.AnnData,
     """
 
     if neighbors_key not in adata.uns:
-        raise(KeyError('No nearest neighbors found in adata.uns[{}]. Run ocelli.pp.neighbors.'.format(neighbors_key)))
+        raise(KeyError('No nearest neighbors found in adata.uns[{}]. Run oci.pp.neighbors.'.format(neighbors_key)))
 
-    if views is None:
-        if 'views' not in list(adata.uns.keys()):
-            raise(NameError('No view keys found in adata.uns["views"].'))
-        views = adata.uns['views']
- 
-    if len(views) == 0:
-        raise(NameError('No view keys found in adata.uns["views"].'))
-        
     n_jobs = cpu_count() if n_jobs == -1 else min([n_jobs, cpu_count()])
-    
-    if random_state is not None:
-        np.random.seed(random_state)
+
+    if view_keys is None:
+        if 'view_keys' not in list(adata.uns.keys()):
+            raise(NameError('No view keys found in adata.uns["view_keys"].'))
+        view_keys = adata.uns['view_keys']
+ 
+    if len(view_keys) == 0:
+        raise(NameError('No view keys found in adata.uns["view_keys"].'))
 
     we = WeightEstimator(n_jobs=n_jobs)
-    weights = we.estimate(views=[adata.obsm[key] for key in views], 
-                          nn=adata.uns[neighbors_key], 
-                          n_pairs=n_pairs)
+    weights = we.estimate(views = [adata.obsm[key] for key in view_keys], 
+                          nn = adata.uns[neighbors_key], 
+                          n_pairs = n_pairs)
 
-    adata.obsm[weights_key] = pd.DataFrame(weights, index=adata.obs.index, columns=views)
+    adata.obsm[weights_key] = pd.DataFrame(weights, index=adata.obs.index, columns=view_keys)
     
-    if verbose:
-        print('Multimodal cell-specific weights estimated.')
+    print('Multi-view weights estimated.')
 
+    return adata if copy else None
+
+def scale_weights(adata: AnnData,
+                  weights_key: str = 'weights',
+                  observations: list = [],
+                  views: list = [],
+                  kappa: float = 1.,
+                  copy: bool = False):
+    """Weight scaling
+    
+    Weights of selected cells and views are scaled by the factor of ``kappa``.
+    If you wish to increase the impact of certain views for some cells, 
+    select them and increase ``kappa``.
+    
+    When selecting views (``views``) and cells (``observations``), pay attention to data types of 
+    ``adata.obsm[weights_key].index`` and ``adata.obsm[weights_key].columns``. 
+    Your input must match these types.
+
+    Parameters
+    ----------
+    adata
+        The annotated data matrix.
+    weights_key
+        ``adata.obsm[weights_key]`` stores weights. (default: ``weights``)
+    observations
+        ``adata.obsm[weights_key].index`` elements storing selected cells. (default: ``[]``)
+    views
+        ``adata.obsm[weights_key].columns`` elements storing selected views. (default: ``[]``)
+    kappa
+        The scaling factor. (default: 1)
+    copy
+        Return a copy of :class:`anndata.AnnData`. (default: ``False``)
+
+    Returns
+    -------
+    :obj:`None`
+        By default (``copy=False``), updates ``adata`` with the following fields:
+        ``adata.obsm[weights_key]`` (:class:`pandas.DataFrame`).
+    :class:`anndata.AnnData`
+        When ``copy=True`` is set, a copy of ``adata`` with those fields is returned.
+    """
+    
+    if weights_key not in adata.obsm:
+        raise (KeyError('No weights found in adata.uns["{}"]. Run oci.tl.weights.'.format(weights_key)))
+        
+    np_obs_ids = list()
+    for i, el in enumerate(adata.obsm[weights_key].index):
+        if el in observations:
+            np_obs_ids.append(i)
+    
+    np_view_ids = list()
+    for i, el in enumerate(adata.obsm[weights_key].columns):
+        if el in views:
+            np_view_ids.append(i)
+    
+    w = np.asarray(adata.obsm[weights_key])
+    w[np.ix_(np.unique(np_obs_ids), np.unique(np_view_ids))] *= kappa
+    adata.obsm[weights_key] = pd.DataFrame(w, 
+                                           index=adata.obsm[weights_key].index, 
+                                           columns=adata.obsm[weights_key].columns)
+    
+    print('Multi-view weights scaled.')
+    
     return adata if copy else None

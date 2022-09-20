@@ -48,7 +48,7 @@ def LDA(adata: anndata.AnnData,
     learning_method
         Method used to update ``_component``.
         In general, if the data size is large, the online update will be much
-        faster than the batch update. (default: batch)
+        faster than the batch update. (default: `batch`)
         
         Valid options::
         
