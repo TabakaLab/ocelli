@@ -1,54 +1,10 @@
-from anndata import AnnData
+import anndata
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
 from multiprocessing import cpu_count
 
-def nn_graph(adata: AnnData,
-                    n: int = 10,
-                    neighbors_key: str = 'neighbors_mvdm',
-                    graph_key: str = 'graph',
-                    copy: bool = False):
-    """Nearest neighbors-based graph
 
-    From each graph node ``n`` edges come out. They correspond to respective cell's nearest neighbors.
-    
-    Before constructing the graph, you must perform a nearest neighbors search in the multi-view diffusion maps space. 
-    To do so, run ``oci.pp.neighbors(adata, view_keys=x_mvdm)``,
-    where ``x_mvdm`` is a :class:`str`, and ``adata.obsm[x_mvdm]`` stores a multi-view diffusion maps embedding.
-    
-    Parameters
-    ----------
-    adata
-        The annotated data matrix.
-    n
-        The number of edges coming out of each node. (default: 10)
-    neighbors_key
-        ``adata.uns[neighbors_key]`` stores the nearest neighbors indices from
-        the MVDM space (:class:`numpy.ndarray` of shape ``(1, n_cells, n_neighbors)``). (default: ``neighbors_mvdm``)
-    graph_key
-        The graph is saved to ``adata.obsm[graph_key]``. (default: ``graph``)
-    copy
-        Return a copy of :class:`anndata.AnnData`. (default: ``False``)
-        
-    Returns
-    -------
-    :obj:`None`
-        By default (``copy=False``), updates ``adata`` with the following fields:
-        ``adata.obsm[graph_key]`` (:class:`numpy.ndarray`).
-    :class:`anndata.AnnData`
-        When ``copy=True`` is set, a copy of ``adata`` with those fields is returned.
-    """
-    
-    if neighbors_key not in adata.uns:
-        raise(KeyError('No nearest neighbors found in adata.uns["{}"]. Run oci.pp.neighbors.'.format(neighbors_key)))
-        
-    adata.obsm[graph_key] = np.asarray(adata.uns[neighbors_key][0, :, :n])
-
-    print('Nearest neighbors-based graph constructed.')
-    
-    return adata if copy else None
-
-def vel_graph(adata: AnnData,
+def vel_graph(adata: anndata.AnnData,
               n: int = 10,
               neighbors_key: str = 'neighbors_mvdm',
               cell_transitions_key: str = 'velocity_graph',
@@ -57,10 +13,11 @@ def vel_graph(adata: AnnData,
               timestamps_key: str = 'timestamps',
               x_key: str = 'x_mvdm',
               n_jobs: int = -1,
+              verbose: bool = False,
               copy: bool = False):
     """RNA velocity-based graph
 
-    From each graph node ``n`` edges come out. They correspond to cells' nearest neighbors
+    From each graph node, ``n`` edges come out. They correspond to cells' nearest neighbors
     with the highest cell transition probabilities. If in a cell's neighborhood there is less
     than ``n`` cells with non-zero cell transitions, the remaining edges are connected
     to the nearest neighbors in the multi-view diffusion maps space. 
@@ -69,8 +26,8 @@ def vel_graph(adata: AnnData,
     that have the subsequent timestamp. By default, timestamps are not utilized.
     
     Before constructing the graph, you must perform a nearest neighbors search in the multi-view diffusion maps space. 
-    To do so, run ``oci.pp.neighbors(adata, view_keys=x_mvdm)``,
-    where ``x_mvdm`` is a :class:`str`, and ``adata.obsm[x_mvdm]`` stores a multi-view diffusion maps embedding.
+    To do so, run ``ocelli.pp.neighbors(adata, views=X_mvdm)``,
+    where ``X_mvdm`` is a :class:`str`, and ``adata.obsm[X_mvdm]`` stores a multi-view diffusion maps embedding.
     
     Parameters
     ----------
@@ -96,6 +53,8 @@ def vel_graph(adata: AnnData,
     n_jobs
         The number of parallel jobs. If the number is larger than the number of CPUs, it is changed to -1.
         -1 means all processors are used. (default: -1)
+    verbose
+        print('Nearest neighbors-based graph constructed.')
     copy
         Return a copy of :class:`anndata.AnnData`. (default: ``False``)
         
@@ -176,6 +135,7 @@ def vel_graph(adata: AnnData,
 
     adata.obsm[graph_key] = np.asarray(df)
 
-    print('RNA velocity-based graph constructed.')
+    if verbose:
+        print('RNA velocity-based graph constructed.')
     
     return adata if copy else None
