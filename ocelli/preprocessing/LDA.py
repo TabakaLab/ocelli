@@ -1,6 +1,5 @@
 from sklearn.decomposition import LatentDirichletAllocation
 from multiprocessing import cpu_count
-import numpy as np
 import anndata
 
 
@@ -143,6 +142,7 @@ def LDA(adata: anndata.AnnData,
                                                  'max_doc_update_iter': max_doc_update_iter,
                                                  'verbose': verbose,
                                                  'random_state': random_state,
-                                                 'n_jobs': n_jobs}
+                                                 'n_jobs': n_jobs,
+                                                 'output_key': output_key}
 
     return adata if copy else None

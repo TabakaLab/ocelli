@@ -81,7 +81,7 @@ def neighbors(adata: anndata.AnnData,
         The number of parallel jobs. If the number is larger than the number of CPUs, it is changed to -1.
         -1 means all processors are used. (default: -1)
     verbose
-        Print progress notifications. 
+        Print progress notifications. (default: ``False``)
     copy
         Return a copy of :class:`anndata.AnnData. (default: ``False``)
 
