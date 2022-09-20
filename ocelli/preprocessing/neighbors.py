@@ -43,7 +43,7 @@ def neighbors(adata: anndata.AnnData,
               epsilons_key: str = 'epsilons',
               distances_key: str = 'distances',
               n_jobs: int = -1,
-              verbose: bool = False:
+              verbose: bool = False,
               copy: bool = False):
     """Nearest neighbors search for all modalities
     
