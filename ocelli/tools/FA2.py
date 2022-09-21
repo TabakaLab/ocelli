@@ -14,7 +14,7 @@ def FA2(adata: anndata.AnnData,
         flags: str = '',
         output_key: str = 'X_fa2',
         copy=False):
-    """ForceAtlas2
+    """Graph dimension reduction using ForceAtlas2
 
     2D and 3D representations of graphs using force-directed layout algorithm ForceAtlas2.
 
