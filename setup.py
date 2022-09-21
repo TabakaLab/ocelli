@@ -18,6 +18,7 @@ setup(
                       'scipy>=1.7.1',
                       'statsmodels>=0.13.0',
                       'sphinx>=1.4',
+                      'umap-learn>=0.5.3',
                       'ipykernel',
                       'nbsphinx'],
     
