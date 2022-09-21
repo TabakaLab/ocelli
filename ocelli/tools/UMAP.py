@@ -1,14 +1,7 @@
 import anndata
-import os
-import numpy as np
-import pandas as pd
-import pkg_resources
 import umap
-from scipy.sparse import coo_matrix, diags, issparse
-from scipy.sparse.linalg import eigsh
+from scipy.sparse import issparse
 from multiprocessing import cpu_count
-import ray
-
 
 
 def UMAP(adata: anndata.AnnData,
@@ -19,6 +12,7 @@ def UMAP(adata: anndata.AnnData,
          random_state = None,
          obsm_key = None,
          output_key: str = 'X_umap',
+         n_jobs: int = -1,
          copy=False):
     """UMAP
 
@@ -52,6 +46,9 @@ def UMAP(adata: anndata.AnnData,
         If :obj:`None`, ``adata.X`` is used. (default: :obj:`None`)
     output_key
         UMAP embedding is saved to ``adata.obsm[output_key]``. (default: `X_umap`)
+    n_jobs
+        The number of parallel jobs. If the number is larger than the number of CPUs, it is changed to -1.
+        -1 means all processors are used. (default: -1)
     copy
         Return a copy of :class:`anndata.AnnData`. (default: ``False``)
         
@@ -64,6 +61,7 @@ def UMAP(adata: anndata.AnnData,
     :class:`anndata.AnnData`
         When ``copy=True`` is set, a copy of ``adata`` with those fields is returned.
     """
+    n_jobs = cpu_count() if n_jobs == -1 else min([n_jobs, cpu_count()])
     
     X = adata.X if obsm_key is None else adata.obsm[obsm_key]
     if issparse(X):
@@ -73,7 +71,8 @@ def UMAP(adata: anndata.AnnData,
                         n_neighbors=n_neighbors,
                         min_dist=min_dist, 
                         spread=spread,
-                        random_state=random_state)
+                        random_state=random_state,
+                        n_jobs=n_jobs)
     adata.obsm[output_key] = reducer.fit_transform(X)
     
     return adata if copy else None
