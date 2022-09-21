@@ -1,0 +1,157 @@
+import anndata
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import plotly.express as px
+import matplotlib as mpl
+from matplotlib.lines import Line2D
+
+
+def scatter(adata: anndata.AnnData,
+            static: bool = True,
+            x_key: str = 'x_fa2',
+            color_key: str = 'celltype',
+            cmap = 'Spectral',
+            marker_size: int = 3):
+    """2D and 3D scatter plots
+    
+    Can generate static 2D plots (:class:`matplotlib`) 
+    or interactive 2D and 3D plots (:class:`Plotly`).
+    
+    Returns :class:`matplotlib` or :class:`Plotly` figures,
+    that can be further customized, or saved.
+    
+    Parameters
+    ----------
+    adata
+        The annotated data matrix.
+    static
+        If ``True``, a plot will be static (available only for 2D). 
+        Otherwise, plot will be interactive (2D or 3D). (default: ``True``)
+    x_key
+        ``adata.obsm[x_key]`` stores a 2D or 3D embedding. (default: ``x_fa2``)
+    color_key
+        ``adata.obs[color_key]`` stores a discrete or continous information used 
+        for coloring the plot. (default: ``celltype``)
+    cmap
+        Used only in ``static`` mode. Can be a name (:class:`str`) 
+        of a built-in :class:`matplotlib` colormap, 
+        or a custom colormap object. (default: ``Spectral``)
+    marker_size
+        Size of scatter plot markers. (default: 3)
+
+    Returns
+    -------
+    :class:`plotly.graph_objs._figure.Figure`
+        A :class:`Plotly` figure if ``static = False``.
+    :class:`tuple`
+        :class:`matplotlib.figure.Figure` and :class:`numpy.ndarray` 
+        storing :class:`matplotlib` figure and axes if ``static = True``.
+    """
+    
+    if x_key not in list(adata.obsm.keys()):
+        raise(NameError('No embedding found to visualize.'))
+        
+    colors = True
+    if color_key not in list(adata.obs.keys()):
+        print('No colors found. Plot will not contain colors.')
+        colors = False
+        
+    dim = adata.obsm[x_key].shape[1]
+        
+    if static:
+        if dim == 2:
+            if type(cmap) == str:
+                cmap = mpl.cm.get_cmap(cmap)
+
+            df = pd.DataFrame(adata.obsm[x_key], columns=['x', 'y'])
+            df[color_key] = list(adata.obs[color_key])
+            df = df.sample(frac=1)
+            fig, ax = plt.subplots(1)
+            ax.set_aspect('equal')
+            try:
+                ax.scatter(x=df['x'], y=df['y'], s=marker_size, c=df[color_key], cmap=cmap)
+                scalarmappaple = mpl.cm.ScalarMappable(norm=mpl.colors.Normalize(vmin=min(df[color_key]), vmax=max(df[color_key])), cmap=cmap)
+                scalarmappaple.set_array(256)
+                cbar = plt.colorbar(scalarmappaple)
+                cbar.ax.tick_params(labelsize=6, length=0)
+                cbar.outline.set_color('white')
+                plt.axis('off')
+            except ValueError:
+                types = np.unique(df[color_key])
+                d = {t: i for i, t in enumerate(types)}
+                df['c'] = [d[el] for el in df[color_key]]
+                ax.scatter(x=df['x'], y=df['y'], s=marker_size, c=df['c'], cmap=cmap)
+                plt.axis('off')
+                patches = [Line2D(range(1), range(1), color="white", marker='o', 
+                          markerfacecolor=cmap(d[t]/(len(d.keys())-1)), label=t) for t in d]
+                plt.legend(handles=patches, fontsize=6, borderpad=0, frameon=False)
+            return fig, ax
+        elif dim == 3:
+            raise(ValueError('Visualized embedding must be 2-dimensional. You passed {} dimensions. Set static = False.'.format(dim)))
+        else:
+            raise(ValueError('Visualized embedding must be 2-dimensional. You passed {} dimensions.'.format(dim)))
+    else:
+        if dim == 2:
+            df = pd.DataFrame(adata.obsm[x_key], columns=['x', 'y'])
+            df[color_key] = list(adata.obs[color_key])
+            df = df.sample(frac=1)
+
+            fig = px.scatter(df, x='x', y='y', color=color_key, hover_name=color_key, 
+                        hover_data={'x': False, 'y': False, color_key: False})
+
+
+            fig.update_layout(scene = dict(
+                        xaxis = dict(
+                             backgroundcolor='white',
+                            visible=False, showticklabels=False,
+                             gridcolor="white",
+                             showbackground=True,
+                             zerolinecolor="white",),
+                        yaxis = dict(
+                            backgroundcolor='white',
+                            visible=False, showticklabels=False,
+                            gridcolor="white",
+                            showbackground=True,
+                            zerolinecolor="white"),),
+                      )
+            fig.update_layout({
+                'plot_bgcolor': 'white',
+                'paper_bgcolor': 'white'})
+        elif dim == 3:
+            df = pd.DataFrame(adata.obsm[x_key], columns=['x', 'y', 'z'])
+            df[color_key] = list(adata.obs[color_key])
+            df = df.sample(frac=1)
+
+            fig = px.scatter_3d(df, x='x', y='y', z='z', color=color_key, hover_name=color_key, 
+                        hover_data={'x': False, 'y': False, 'z': False, color_key: False})
+
+            fig.update_layout(scene = dict(
+                xaxis = dict(
+                     backgroundcolor='white',
+                    visible=False, showticklabels=False,
+                     gridcolor="white",
+                     showbackground=True,
+                     zerolinecolor="white",),
+                yaxis = dict(
+                    backgroundcolor='white',
+                    visible=False, showticklabels=False,
+                    gridcolor="white",
+                    showbackground=True,
+                    zerolinecolor="white"),
+                zaxis = dict(
+                    backgroundcolor='white',
+                    visible=False, showticklabels=False,
+                    gridcolor="white",
+                    showbackground=True,
+                    zerolinecolor="white",),),)
+            fig.update_layout({
+                'plot_bgcolor': 'white',
+                'paper_bgcolor': 'white'})
+        else:
+            raise(ValueError('Visualized embedding must be 2- or 3-dimensional. You passed {} dimensions.'.format(dim)))
+
+        fig.update_traces(marker=dict(size=marker_size), selector=dict(mode='markers'))
+        fig.update_layout(legend= {'itemsizing': 'constant'})
+
+        return fig

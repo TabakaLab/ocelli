@@ -1,4 +1,6 @@
-from .plot import weights, scatter, topics
+from .weights import weights
+from .scatter import scatter
+from .topics import topics
 
 __all__ = [
     'weights',

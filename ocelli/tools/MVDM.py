@@ -150,7 +150,7 @@ def MVDM(adata: AnnData,
         A list of ``adata.obsm`` keys storing modalities.
         If :obj:`None`, views' keys are loaded from ``adata.uns['key_views']``. (default: :obj:`None`)
     weights_key
-        ``adata.obsm[weights_key]`` stores multimodal weights. (default: ``weights``)
+        ``adata.obsm[weights_key]`` stores multimodal weights. (default: `weights`)
     neighbors_key
         ``adata.uns[neighbors_key]`` stores the nearest neighbor indices 
         (:class:`numpy.ndarray` of shape ``(n_views, n_cells, n_neighbors)``).
@@ -160,7 +160,7 @@ def MVDM(adata: AnnData,
         (:class:`numpy.ndarray` of shape ``(n_views, n_cells, n_neighbors)``).
         (default: ``epsilons``)
     output_key
-        Multi-view diffusion maps embedding are saved to ``adata.obsm[output_key]``. (default: ``X_mvdm``)
+        Multi-view diffusion maps embedding is saved to ``adata.obsm[output_key]``. (default: `X_mvdm`)
     normalize_single_views
         If ``True``, single-view kernel matrices are normalized. (default: ``True``)
     eigval_times_eigvec

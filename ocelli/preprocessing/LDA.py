@@ -34,7 +34,7 @@ def LDA(adata: anndata.AnnData,
         The annotated data matrix.
     obsm_key
         ``adata.obsm[obsm_key]`` stores a matrix for topic modeling. 
-        Matrix elements can not be negative.
+        Matrix elements can not have negative values.
         If :obj:`None`, ``adata.X`` is used. (default: :obj:`None`)
     output_key
         Key of ``adata.obsm`` and ``adata.varm`` under which LDA output will be saved. (default: `lda`)

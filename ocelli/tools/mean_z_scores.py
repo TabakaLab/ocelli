@@ -7,22 +7,19 @@ from scipy.sparse import issparse
 
 
 def scale(X, vmin, vmax):
-    X = np.squeeze(X, 1)
-    for i, val in enumerate(X):
-        if val < vmin:
-            X[i] = vmin
-        elif val > vmax:
-            X[i] = vmax
+    for i in range(X.shape[0]):
+        for j in range(X.shape[1]):
+            if X[i, j] < vmin:
+                X[i, j] = vmin
+            elif X[i, j] > vmax:
+                X[i, j] = vmax
     return X
 
+
 @ray.remote
-def worker(adata, marker, vmin, vmax):
-    try:
-        x = adata[:, marker].X.toarray()
-    except:
-        x = adata[:, marker].X
-    
-    return zscore(scale(x, vmin, vmax), nan_policy='omit')
+def worker(X):
+    return zscore(X, nan_policy='omit')
+
 
 def mean_z_scores(adata: AnnData, 
                   markers: list, 
@@ -38,7 +35,7 @@ def mean_z_scores(adata: AnnData,
     
     Computes z-scores for markers given as a :class:`list` of integer indices.
     These indices indicate which columns from ``adata.X`` or ``adata.obsm[obsm_key]`` are interpreted as markers.
-    Z-scores are then averaged for each cell independently over markers.
+    Z-scores are then fitted to ``[vmin, vmax]`` scale and subsequently averaged for each cell independently over markers.
 
     Parameters
     ----------
@@ -71,23 +68,19 @@ def mean_z_scores(adata: AnnData,
     :class:`anndata.AnnData`
         When ``copy=True`` is set, a copy of ``adata`` with those fields is returned.
     """
+
     n_jobs = cpu_count() if n_jobs == -1 else min([n_jobs, cpu_count()])
     
     if not ray.is_initialized():
         ray.init(num_cpus=n_jobs)
     
-    if obsm_key is not None:
-        X = adata.obsm[obsm_key]
-    else:
-        X = adata.X
+    X = adata.obsm[obsm_key] if obsm_key is not None else adata.X
         
     if issparse(X):
         X = X.toarray()
-    
-    X = X[:, markers]
 
-    adata_ref = ray.put(adata)
-    output = np.nan_to_num(ray.get([worker.remote(adata_ref, marker, vmin, vmax) for marker in markers]))
+    output = np.nan_to_num(ray.get([worker.remote(X[:, marker]) for marker in markers]))
+    output = scale(output, vmin, vmax)
 
     adata.obs[output_key] = np.mean(output, axis=0)
 
