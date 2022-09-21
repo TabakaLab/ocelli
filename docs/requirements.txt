@@ -15,3 +15,4 @@ ray
 scikit-learn
 scipy
 statsmodels
+umap-learn
