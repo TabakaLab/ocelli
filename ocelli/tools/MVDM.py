@@ -206,7 +206,7 @@ def MVDM(adata: AnnData,
     n_jobs = cpu_count() if n_jobs == -1 else min([n_jobs, cpu_count()])
 
     adata.obsm[output_key] = MultiViewDiffMaps(n_jobs).fit_transform(views = [adata.obsm[key] for key in views],
-                                                                     n_components = n_components,
+                                                                     n_comps = n_components,
                                                                      nn = adata.uns[neighbors_key],
                                                                      epsilons = adata.uns[epsilons_key],
                                                                      weights = np.asarray(adata.obsm[weights_key]),
