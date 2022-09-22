@@ -6,12 +6,12 @@ from multiprocessing import cpu_count
 
 def vel_graph(adata: anndata.AnnData,
               n: int = 10,
-              neighbors_key: str = 'neighbors_mvdm',
+              neighbors_key: str = 'neighbors_mdm',
               cell_transitions_key: str = 'velocity_graph',
               graph_key: str = 'graph',
               use_timestamps: bool = False,
               timestamps_key: str = 'timestamps',
-              x_key: str = 'x_mvdm',
+              x_key: str = 'x_mdm',
               n_jobs: int = -1,
               verbose: bool = False,
               copy: bool = False):
@@ -20,14 +20,14 @@ def vel_graph(adata: anndata.AnnData,
     From each graph node, ``n`` edges come out. They correspond to cells' nearest neighbors
     with the highest cell transition probabilities. If in a cell's neighborhood there is less
     than ``n`` cells with non-zero cell transitions, the remaining edges are connected
-    to the nearest neighbors in the multi-view diffusion maps space. 
+    to the nearest neighbors in the Multimodal Diffusion Maps (MDM) space. 
     
-    If ``use_timestamps = True``, the remaining edges are connected to the nearest neighbors in the multi-view diffusion maps space
+    If ``use_timestamps = True``, the remaining edges are connected to the nearest neighbors in the MDM space
     that have the subsequent timestamp. By default, timestamps are not utilized.
     
-    Before constructing the graph, you must perform a nearest neighbors search in the multi-view diffusion maps space. 
-    To do so, run ``ocelli.pp.neighbors(adata, views=X_mvdm)``,
-    where ``X_mvdm`` is a :class:`str`, and ``adata.obsm[X_mvdm]`` stores a multi-view diffusion maps embedding.
+    Before constructing the graph, you must perform a nearest neighbors search in the MDM space. 
+    To do so, run ``ocelli.pp.neighbors(adata, views=X_mdm)``,
+    where ``X_mdm`` is a :class:`str`, and ``adata.obsm[X_mdm]`` stores a MDM embedding.
     
     Parameters
     ----------
@@ -37,7 +37,7 @@ def vel_graph(adata: anndata.AnnData,
         The number of edges coming out of each node. (default: 10)
     neighbors_key
         ``adata.uns[neighbors_key]`` stores the nearest neighbors indices
-        from the MVDM space (:class:`numpy.ndarray` of shape ``(1, n_cells, n_neighbors)``). (default: ``neighbors_mvdm``)
+        from the MDM space (:class:`numpy.ndarray` of shape ``(1, n_cells, n_neighbors)``). (default: ``neighbors_mdm``)
     cell_transitions_key
         ``adata.uns[transitions_key]`` stores the cell transition probability square matrix.
         (default: ``velocity_graph``)
@@ -48,8 +48,8 @@ def vel_graph(adata: anndata.AnnData,
     timestamps_key
         Used only if ``use_timestamps = True``. ``adata.obs[timestamps_key]`` stores cell timestamps. (default: ``timestamps``)
     x_key
-         Used only if ``use_timestamps = True``. ``adata.obsm[x_key]`` stores the MVDM embedding.
-         It is used for calculating nearest neighbors. (default: ``x_mvdm``)
+         Used only if ``use_timestamps = True``. ``adata.obsm[x_key]`` stores the MDM embedding.
+         It is used for calculating nearest neighbors. (default: ``x_mdm``)
     n_jobs
         The number of parallel jobs. If the number is larger than the number of CPUs, it is changed to -1.
         -1 means all processors are used. (default: -1)
@@ -68,7 +68,7 @@ def vel_graph(adata: anndata.AnnData,
     """
     
     if neighbors_key not in adata.uns:
-        raise(KeyError('No nearest neighbors found in adata.uns["{}"]. Run oci.pp.neighbors on MVDM embeddings.'.format(neighbors_key)))
+        raise(KeyError('No nearest neighbors found in adata.uns["{}"]. Run oci.pp.neighbors on MDM embeddings.'.format(neighbors_key)))
     
     if cell_transitions_key not in adata.uns:
         raise(KeyError('No velocity transitions found in adata.uns["{}"].'.format(cell_transitions_key)))

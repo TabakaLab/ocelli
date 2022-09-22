@@ -30,14 +30,14 @@ Preprocessing (pp)
 Tools (tl)
 ----------
 
-**Multi-view diffusion maps**
+**Multimodal Diffusion Maps**
 
 .. autosummary::
    :toctree: .
    
    tl.weights
    tl.scale_weights
-   tl.MVDM
+   tl.MDM
    
    
 **Graph representations**

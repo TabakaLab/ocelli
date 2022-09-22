@@ -1,7 +1,7 @@
 Ocelli
 ==================================
 
-**Ocelli** is a multi-view computational approach for the visualization of multimodal developmental data. It includes a novel multi-view diffusion maps algorithm for embedding multimodal datasets into low-dimensional latent spaces.
+**Ocelli** is a computational tool for the visualization of multimodal single-cell developmental data. It includes a novel Multimodal Diffusion Maps algorithm for embedding multimodal datasets into low-dimensional latent spaces.
 
 .. image:: images/mvdm.png
 
@@ -23,10 +23,11 @@ The source code is avaialable on GitHub_.
    :maxdepth: 1
    :hidden:
    
-   notebooks/tutorial-human-bone-marrow
-   notebooks/tutorial-toy-model-1
-   notebooks/tutorial-toy-model-2
-   notebooks/tutorial-pancreas
-   
+   notebooks/human-bone-marrow
+   notebooks/hair-follicle
+   notebooks/binary-tree
+   notebooks/sparse-transitions
+   notebooks/pancreas
+   notebooks/cell-reprogramming
    
 .. _GitHub: https://github.com/TabakaLab/ocelli

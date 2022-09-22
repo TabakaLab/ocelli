@@ -9,9 +9,9 @@ def weights(adata: anndata.AnnData,
             showmeans: bool = False, 
             showmedians: bool = True, 
             showextrema: bool = False):
-    """Multi-view weights violin plots
+    """Multimodal weights violin plots
     
-    Basic violin plots of multi-view weights. 
+    Basic violin plots of multimodal weights. 
     A seperate violin plot is generated for each view and celltype. 
     Looks best when the numbers of views and cell types are not large.
     
@@ -23,7 +23,7 @@ def weights(adata: anndata.AnnData,
     adata
         The annotated data matrix.
     weights_key
-        ``adata.obsm[weights_key]`` stores multi-view weights. (default: ``weights``)
+        ``adata.obsm[weights_key]`` stores multimodal weights. (default: ``weights``)
     celltype_key
         ``adata.obs[celltype_key]`` stores celltypes. For each celltype 
         a seperate violin plot is generated. If ``celltype_key`` is not found, 

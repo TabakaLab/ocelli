@@ -3,7 +3,7 @@ import numpy as np
 
 def nn_graph(adata: anndata.AnnData,
              n: int = 10,
-             neighbors_key: str = 'neighbors_mvdm',
+             neighbors_key: str = 'neighbors_mdm',
              graph_key: str = 'graph',
              verbose: bool = False,
              copy: bool = False):
@@ -11,9 +11,9 @@ def nn_graph(adata: anndata.AnnData,
 
     From each graph node, ``n`` edges come out. They correspond to respective cell's nearest neighbors.
     
-    Before constructing the graph, you must perform a nearest neighbors search in the multi-view diffusion maps space. 
-    To do so, run ``ocelli.pp.neighbors(adata, views=X_mvdm)``,
-    where ``X_mvdm`` is a :class:`str`, and ``adata.obsm[X_mvdm]`` stores a multi-view diffusion maps embedding.
+    Before constructing the graph, you must perform a nearest neighbors search in the Multimodal Diffusion Maps space. 
+    To do so, run ``ocelli.pp.neighbors(adata, views=X_mdm)``,
+    where ``X_mdm`` is a :class:`str`, and ``adata.obsm[X_mdm]`` stores a Multimodal Diffusion Maps embedding.
     
     Parameters
     ----------
@@ -23,7 +23,7 @@ def nn_graph(adata: anndata.AnnData,
         number of edges coming out of each node. (default: 10)
     neighbors_key
         ``adata.uns[neighbors_key]`` stores nearest neighbors indices from
-        the MVDM space (:class:`numpy.ndarray` of shape ``(1, n_cells, n_neighbors)``). (default: ``neighbors_mvdm``)
+        the MDM space (:class:`numpy.ndarray` of shape ``(1, n_cells, n_neighbors)``). (default: ``neighbors_mdm``)
     graph_key
         The graph is saved to ``adata.obsm[graph_key]``. (default: ``graph``)
     verbose

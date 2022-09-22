@@ -1,6 +1,6 @@
 from .weights import weights
 from .scale_weights import scale_weights
-from .MVDM import MVDM
+from .MDM import MDM
 from .nn_graph import nn_graph
 from .vel_graph import vel_graph
 from .FA2 import FA2
@@ -11,7 +11,7 @@ from .mean_z_scores import mean_z_scores
 __all__ = [
     'weights', 
     'scale_weights',
-    'MVDM',
+    'MDM',
     'nn_graph',
     'vel_graph', 
     'FA2',

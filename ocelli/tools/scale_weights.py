@@ -66,6 +66,6 @@ def scale_weights(adata: anndata.AnnData,
                                            columns=adata.obsm[weights_key].columns)
     
     if verbose:
-        print('Multimodal cell-specific weights scaled.')
+        print('Multimodal weights scaled.')
     
     return adata if copy else None

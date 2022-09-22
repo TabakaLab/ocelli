@@ -7,7 +7,7 @@ import pandas as pd
 
 
 class WeightEstimator():
-    """The multi-view cell weights class"""
+    """Multimodal cell weights class"""
     
     def __init__(self, n_jobs=cpu_count()):
         if not ray.is_initialized():

@@ -22,8 +22,8 @@ def gaussian_kernel(x, y, epsilon_x, epsilon_y):
         return np.exp(-1 * np.power(np.linalg.norm(x - y), 2) / epsilons_mul)
 
 
-class MultiViewDiffMaps():
-    """Multi-view diffusion maps class"""
+class MultimodalDiffusionMaps():
+    """Multimodal diffusion maps class"""
     def __init__(self,
                  n_jobs=cpu_count()):
         if not ray.is_initialized():
@@ -122,30 +122,30 @@ class MultiViewDiffMaps():
         return rep
 
 
-def MVDM(adata: AnnData,
+def MDM(adata: AnnData,
          n_components: int = 10,
          views = None,
          weights_key: str = 'weights',
          neighbors_key: str = 'neighbors',
          epsilons_key: str = 'epsilons',
-         output_key: str = 'X_mvdm',
+         output_key: str = 'X_mdm',
          normalize_single_views: bool = True,
          eigval_times_eigvec: bool = True,
          n_jobs: int = -1,
          random_state = None,
          verbose: bool = False,
          copy: bool = False):
-    """Multi-view diffusion maps
+    """Multimodal Diffusion Maps
 
-    Algorithm calculates multi-view diffusion maps cell embeddings using
-    pre-calculated multi-view weights.
+    Algorithm calculates multimodal diffusion maps cell embeddings using
+    pre-calculated multimodal weights.
 
     Parameters
     ----------
     adata
         The annotated data matrix.
     n_components
-        The number of multi-view diffusion maps components. (default: 10)
+        The number of multimodal diffusion maps components. (default: 10)
     views
         A list of ``adata.obsm`` keys storing modalities.
         If :obj:`None`, views' keys are loaded from ``adata.uns['key_views']``. (default: :obj:`None`)
@@ -160,11 +160,11 @@ def MVDM(adata: AnnData,
         (:class:`numpy.ndarray` of shape ``(n_views, n_cells, n_neighbors)``).
         (default: ``epsilons``)
     output_key
-        Multi-view diffusion maps embedding is saved to ``adata.obsm[output_key]``. (default: `X_mvdm`)
+        Multimodal diffusion maps embedding is saved to ``adata.obsm[output_key]``. (default: `X_mdm`)
     normalize_single_views
         If ``True``, single-view kernel matrices are normalized. (default: ``True``)
     eigval_times_eigvec
-        If ``True``, the multi-view diffusion maps embedding is calculated by multiplying
+        If ``True``, the multimodal diffusion maps embedding is calculated by multiplying
         eigenvectors by eigenvalues. Otherwise, the embedding consists of unmultiplied eigenvectors. (default: ``True``)
     n_jobs
         The number of parallel jobs. If the number is larger than the number of CPUs, it is changed to -1.
@@ -205,17 +205,17 @@ def MVDM(adata: AnnData,
 
     n_jobs = cpu_count() if n_jobs == -1 else min([n_jobs, cpu_count()])
 
-    adata.obsm[output_key] = MultiViewDiffMaps(n_jobs).fit_transform(views = [adata.obsm[key] for key in views],
-                                                                     n_comps = n_components,
-                                                                     nn = adata.uns[neighbors_key],
-                                                                     epsilons = adata.uns[epsilons_key],
-                                                                     weights = np.asarray(adata.obsm[weights_key]),
-                                                                     normalize_single_views = normalize_single_views,
-                                                                     eigval_times_eigvec = eigval_times_eigvec,
-                                                                     random_state = random_state,
-                                                                     verbose = verbose)
+    adata.obsm[output_key] = MultimodalDiffusionMaps(n_jobs).fit_transform(views = [adata.obsm[key] for key in views],
+                                                                           n_comps = n_components,
+                                                                           nn = adata.uns[neighbors_key],
+                                                                           epsilons = adata.uns[epsilons_key],
+                                                                           weights = np.asarray(adata.obsm[weights_key]),
+                                                                           normalize_single_views = normalize_single_views,
+                                                                           eigval_times_eigvec = eigval_times_eigvec,
+                                                                           random_state = random_state,
+                                                                           verbose = verbose)
 
     if verbose:
-        print('{} multi-view diffusion maps components calculated.'.format(n_components))
+        print('{} Multimodal Diffusion Maps components calculated.'.format(n_components))
     
     return adata if copy else None

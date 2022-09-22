@@ -5,7 +5,7 @@ import matplotlib as mpl
 
 
 def topics(adata: anndata.AnnData,
-           x_key: str = 'x_fa2',
+           x_key: str = 'X_fa2',
            topics_key: str = 'lda',
            cmap = None,
            marker_size: int = 1):
@@ -21,7 +21,7 @@ def topics(adata: anndata.AnnData,
     adata
         The annotated data matrix.
     x_key
-        ``adata.obsm[x_key]`` stores a 2D embedding. (default: ``x_fa2``)
+        ``adata.obsm[x_key]`` stores a 2D embedding. (default: `X_fa2`)
     topics_key
         ``adata.obsm[topics_key]`` stores topic scores as a matrix of shape ``(n_cells, n_topics)``. (default: ``lda``)
     cmap
