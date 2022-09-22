@@ -23,8 +23,10 @@ The source code is avaialable on GitHub_.
    :maxdepth: 1
    :hidden:
    
+   notebooks/tutorial-human-bone-marrow
    notebooks/tutorial-toy-model-1
    notebooks/tutorial-toy-model-2
    notebooks/tutorial-pancreas
+   
    
 .. _GitHub: https://github.com/TabakaLab/ocelli

@@ -97,7 +97,7 @@ class MultiViewDiffMaps():
                 affinity_matrix += affinity_view
                 
             if verbose:
-                print('Unimodal Markov chain calculated ({}/{})'.format(view_id, len(views)))
+                print('Unimodal Markov chain calculated ({}/{})'.format(view_id + 1, len(views)))
                 
         diag_vals = np.asarray([1 / val if val != 0 else 1 for val in affinity_matrix.sum(axis=1).A1])
         affinity_matrix = diags(diag_vals) @ affinity_matrix

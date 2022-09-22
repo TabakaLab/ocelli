@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import pkg_resources
 from multiprocessing import cpu_count
+import os
 
 
 def FA2(adata: anndata.AnnData,

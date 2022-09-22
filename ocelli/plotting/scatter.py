@@ -8,9 +8,9 @@ from matplotlib.lines import Line2D
 
 
 def scatter(adata: anndata.AnnData,
+            x_key: str,
+            color_key = None,
             static: bool = True,
-            x_key: str = 'x_fa2',
-            color_key: str = 'celltype',
             cmap = 'Spectral',
             marker_size: int = 3):
     """2D and 3D scatter plots
@@ -25,14 +25,14 @@ def scatter(adata: anndata.AnnData,
     ----------
     adata
         The annotated data matrix.
+    x_key
+        ``adata.obsm`` key storing a 2D or 3D embedding for plotting.
+    color_key
+        ``adata.obs[color_key]`` stores a discrete or continous information used 
+        for coloring the plot. (default: :obj:`None`)
     static
         If ``True``, a plot will be static (available only for 2D). 
         Otherwise, plot will be interactive (2D or 3D). (default: ``True``)
-    x_key
-        ``adata.obsm[x_key]`` stores a 2D or 3D embedding. (default: ``x_fa2``)
-    color_key
-        ``adata.obs[color_key]`` stores a discrete or continous information used 
-        for coloring the plot. (default: ``celltype``)
     cmap
         Used only in ``static`` mode. Can be a name (:class:`str`) 
         of a built-in :class:`matplotlib` colormap, 
@@ -52,10 +52,9 @@ def scatter(adata: anndata.AnnData,
     if x_key not in list(adata.obsm.keys()):
         raise(NameError('No embedding found to visualize.'))
         
-    colors = True
-    if color_key not in list(adata.obs.keys()):
-        print('No colors found. Plot will not contain colors.')
-        colors = False
+    colors_found = False
+    if color_key in list(adata.obs.keys()):
+        colors_found = True
         
     dim = adata.obsm[x_key].shape[1]
         
@@ -65,26 +64,29 @@ def scatter(adata: anndata.AnnData,
                 cmap = mpl.cm.get_cmap(cmap)
 
             df = pd.DataFrame(adata.obsm[x_key], columns=['x', 'y'])
-            df[color_key] = list(adata.obs[color_key])
+            if colors_found:
+                df['color'] = list(adata.obs[color_key])
+            else:
+                df['color'] = ['Undefined' for _ in range(adata.obsm[x_key].shape[0])]
             df = df.sample(frac=1)
             fig, ax = plt.subplots(1)
             ax.set_aspect('equal')
             try:
-                ax.scatter(x=df['x'], y=df['y'], s=marker_size, c=df[color_key], cmap=cmap)
-                scalarmappaple = mpl.cm.ScalarMappable(norm=mpl.colors.Normalize(vmin=min(df[color_key]), vmax=max(df[color_key])), cmap=cmap)
+                ax.scatter(x=df['x'], y=df['y'], s=marker_size, c=df['color'], cmap=cmap)
+                scalarmappaple = mpl.cm.ScalarMappable(norm=mpl.colors.Normalize(vmin=min(df['color']), vmax=max(df['color'])), cmap=cmap)
                 scalarmappaple.set_array(256)
                 cbar = plt.colorbar(scalarmappaple)
                 cbar.ax.tick_params(labelsize=6, length=0)
                 cbar.outline.set_color('white')
                 plt.axis('off')
             except ValueError:
-                types = np.unique(df[color_key])
+                types = np.unique(df['color'])
                 d = {t: i for i, t in enumerate(types)}
-                df['c'] = [d[el] for el in df[color_key]]
+                df['c'] = [d[el] for el in df['color']]
                 ax.scatter(x=df['x'], y=df['y'], s=marker_size, c=df['c'], cmap=cmap)
                 plt.axis('off')
                 patches = [Line2D(range(1), range(1), color="white", marker='o', 
-                          markerfacecolor=cmap(d[t]/(len(d.keys())-1)), label=t) for t in d]
+                          markerfacecolor=cmap(d[t]/(len(d.keys()))), label=t) for t in d]
                 plt.legend(handles=patches, fontsize=6, borderpad=0, frameon=False)
             return fig, ax
         elif dim == 3:
@@ -94,11 +96,14 @@ def scatter(adata: anndata.AnnData,
     else:
         if dim == 2:
             df = pd.DataFrame(adata.obsm[x_key], columns=['x', 'y'])
-            df[color_key] = list(adata.obs[color_key])
+            if colors_found:
+                df['color'] = list(adata.obs[color_key])
+            else:
+                df['color'] = ['Undefined' for _ in range(adata.obsm[x_key].shape[0])]
             df = df.sample(frac=1)
 
-            fig = px.scatter(df, x='x', y='y', color=color_key, hover_name=color_key, 
-                        hover_data={'x': False, 'y': False, color_key: False})
+            fig = px.scatter(df, x='x', y='y', color='color', hover_name='color', 
+                        hover_data={'x': False, 'y': False, 'color': False})
 
 
             fig.update_layout(scene = dict(
@@ -120,11 +125,14 @@ def scatter(adata: anndata.AnnData,
                 'paper_bgcolor': 'white'})
         elif dim == 3:
             df = pd.DataFrame(adata.obsm[x_key], columns=['x', 'y', 'z'])
-            df[color_key] = list(adata.obs[color_key])
+            if colors_found:
+                df['color'] = list(adata.obs[color_key])
+            else:
+                df['color'] = ['Undefined' for _ in range(adata.obsm[x_key].shape[0])]
             df = df.sample(frac=1)
 
-            fig = px.scatter_3d(df, x='x', y='y', z='z', color=color_key, hover_name=color_key, 
-                        hover_data={'x': False, 'y': False, 'z': False, color_key: False})
+            fig = px.scatter_3d(df, x='x', y='y', z='z', color='color', hover_name='color', 
+                        hover_data={'x': False, 'y': False, 'z': False, 'color': False})
 
             fig.update_layout(scene = dict(
                 xaxis = dict(

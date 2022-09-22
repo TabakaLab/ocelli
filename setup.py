@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ocelli',
-    version='0.0.21',
+    version='0.0.28',
     
     python_requires='>=3.7',
     install_requires=['anndata>=0.7.6', 
