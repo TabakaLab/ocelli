@@ -12,7 +12,7 @@ def nn_graph(adata: anndata.AnnData,
     From each graph node, ``n`` edges come out. They correspond to respective cell's nearest neighbors.
     
     Before constructing the graph, you must perform a nearest neighbors search in the Multimodal Diffusion Maps space. 
-    To do so, run ``ocelli.pp.neighbors(adata, views=X_mdm)``,
+    To do so, run ``ocelli.pp.neighbors(adata, modalities=[X_mdm])``,
     where ``X_mdm`` is a :class:`str`, and ``adata.obsm[X_mdm]`` stores a Multimodal Diffusion Maps embedding.
     
     Parameters

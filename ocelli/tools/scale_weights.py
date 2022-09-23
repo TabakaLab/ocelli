@@ -6,17 +6,17 @@ import pandas as pd
 def scale_weights(adata: anndata.AnnData,
                   weights_key: str = 'weights',
                   obs: list = [],
-                  views: list = [],
+                  modalities: list = [],
                   kappa: float = 1.,
                   verbose: bool = False,
                   copy: bool = False):
     """Multimodal weights scaling
     
-    Weights of selected observations (cells) and views are scaled by the factor of ``kappa``.
-    If you wish to increase the impact of certain views for some cells, 
+    Weights of selected observations (cells) and modalities are scaled by the factor of ``kappa``.
+    If you wish to increase the impact of certain modalities for some cells, 
     select them and increase ``kappa``.
     
-    When selecting views (``views``) and observations (``obs``), pay attention to data types of 
+    When selecting modalities (``modalities``) and observations (``obs``), pay attention to data types of 
     ``adata.obsm[weights_key].index`` and ``adata.obsm[weights_key].columns``. 
     Your input must match these types.
 
@@ -28,8 +28,8 @@ def scale_weights(adata: anndata.AnnData,
         ``adata.obsm[weights_key]`` stores weights. (default: ``weights``)
     obs
         ``adata.obsm[weights_key].index`` elements storing selected cells. (default: ``[]``)
-    views
-        ``adata.obsm[weights_key].columns`` elements storing selected views. (default: ``[]``)
+    modalities
+        ``adata.obsm[weights_key].columns`` elements storing selected modalities. (default: ``[]``)
     kappa
         The scaling factor. (default: 1)
     verbose
@@ -54,13 +54,13 @@ def scale_weights(adata: anndata.AnnData,
         if el in obs:
             np_obs_ids.append(i)
     
-    np_view_ids = list()
+    np_modality_ids = list()
     for i, el in enumerate(adata.obsm[weights_key].columns):
-        if el in views:
-            np_view_ids.append(i)
+        if el in modalities:
+            np_modality_ids.append(i)
     
     w = np.asarray(adata.obsm[weights_key])
-    w[np.ix_(np.unique(np_obs_ids), np.unique(np_view_ids))] *= kappa
+    w[np.ix_(np.unique(np_obs_ids), np.unique(np_modality_ids))] *= kappa
     adata.obsm[weights_key] = pd.DataFrame(w, 
                                            index=adata.obsm[weights_key].index, 
                                            columns=adata.obsm[weights_key].columns)

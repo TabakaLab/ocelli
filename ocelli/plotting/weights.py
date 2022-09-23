@@ -12,8 +12,8 @@ def weights(adata: anndata.AnnData,
     """Multimodal weights violin plots
     
     Basic violin plots of multimodal weights. 
-    A seperate violin plot is generated for each view and celltype. 
-    Looks best when the numbers of views and cell types are not large.
+    A seperate violin plot is generated for each modality and celltype. 
+    Used best when the numbers of modalities and cell types are not large.
     
     Returns a :class:`tuple` of :class:`matplotlib` figure and axes.
     They can be further customized, or saved.
@@ -42,17 +42,17 @@ def weights(adata: anndata.AnnData,
     """
     
     if celltype_key not in list(adata.obs.keys()):
-        views = list(adata.obsm['weights'].columns)
-        fig, ax = plt.subplots(nrows=len(views), ncols=1)
-        fig.supylabel('views', size=6)
+        modalities = list(adata.obsm['weights'].columns)
+        fig, ax = plt.subplots(nrows=len(modalities), ncols=1)
+        fig.supylabel('modalities', size=6)
         fig.suptitle('weights', size=6)
 
-        for i, view in enumerate(views):
-            ax[i].violinplot(adata.obsm['weights'][view], 
+        for i, m in enumerate(modalities):
+            ax[i].violinplot(adata.obsm['weights'][m], 
                              showmeans=showmeans, 
                              showmedians=showmedians, 
                              showextrema=showextrema)
-            ax[i].set_ylabel(view, size=6)
+            ax[i].set_ylabel(m, size=6)
             ax[i].spines['right'].set_visible(False)
             ax[i].spines['top'].set_visible(False)
             ax[i].spines['bottom'].set_visible(False)
@@ -63,23 +63,23 @@ def weights(adata: anndata.AnnData,
             ax[i].set_ylim([0,1])
         plt.tight_layout()
     else:
-        views = list(adata.obsm['weights'].columns)
+        modalities = list(adata.obsm['weights'].columns)
         celltypes = list(np.unique(adata.obs[celltype_key]))
 
-        fig, ax = plt.subplots(nrows=len(views), ncols=len(celltypes))
-        fig.supylabel('views', size=6)
+        fig, ax = plt.subplots(nrows=len(modalities), ncols=len(celltypes))
+        fig.supylabel('modalities', size=6)
         fig.suptitle('celltypes', size=6)
 
-        for i, view in enumerate(views):
+        for i, m in enumerate(modalities):
             for j, celltype in enumerate(celltypes):
-                ax[i][j].violinplot(adata[adata.obs[celltype_key] == celltype].obsm[weights_key][view], 
+                ax[i][j].violinplot(adata[adata.obs[celltype_key] == celltype].obsm[weights_key][m], 
                                     showmeans=showmeans, 
                                     showmedians=showmedians, 
                                     showextrema=showextrema)
                 if i == 0:
                     ax[i][j].set_title(celltypes[j], size=6)
                 if j == 0:
-                    ax[i][j].set_ylabel(view, size=6)
+                    ax[i][j].set_ylabel(m, size=6)
                 ax[i][j].spines['right'].set_visible(False)
                 ax[i][j].spines['top'].set_visible(False)
                 ax[i][j].spines['bottom'].set_visible(False)

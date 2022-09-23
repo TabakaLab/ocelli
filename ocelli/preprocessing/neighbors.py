@@ -38,7 +38,7 @@ def nmslib_nn(M, n_neighbors, n_jobs):
 
 def neighbors(adata: anndata.AnnData,
               n_neighbors: int = 20,
-              views = None,
+              modalities = None,
               method: str = 'sklearn',
               neighbors_key: str = 'neighbors',
               epsilons_key: str = 'epsilons',
@@ -59,9 +59,9 @@ def neighbors(adata: anndata.AnnData,
         The annotated data matrix.
     n_neighbors
         The number of nearest neighbors. (default: 20)
-    views
+    modalities
         A list of ``adata.obsm`` keys storing modalities.
-        If :obj:`None`, views' keys are loaded from ``adata.uns['key_views']``. (default: :obj:`None`)
+        If :obj:`None`, modalities' keys are loaded from ``adata.uns[modalities]``. (default: :obj:`None`)
     method
         The method used for the neareast neighbor search.
         
@@ -92,24 +92,24 @@ def neighbors(adata: anndata.AnnData,
     -------
     :obj:`None`
         By default (``copy=False``), updates ``adata`` with the following fields:
-        ``adata.uns[neighbors_key]`` (:class:`numpy.ndarray` of shape ``(n_views, n_obs, n_neighbors)``),
-        ``adata.uns[epsilons_key]`` (:class:`numpy.ndarray` of shape ``(n_views, n_obs)``),
-        ``adata.uns[distances_key]`` (:class:`numpy.ndarray` of shape ``(n_views, n_obs, n_neighbors)``).
+        ``adata.uns[neighbors_key]`` (:class:`numpy.ndarray` of shape ``(n_modalities, n_obs, n_neighbors)``),
+        ``adata.uns[epsilons_key]`` (:class:`numpy.ndarray` of shape ``(n_modalities, n_obs)``),
+        ``adata.uns[distances_key]`` (:class:`numpy.ndarray` of shape ``(n_modalities, n_obs, n_neighbors)``).
     :class:`anndata.AnnData`
         When ``copy=True`` is set, a copy of ``adata`` with those fields is returned.
     """
 
     n_jobs = cpu_count() if n_jobs == -1 else min([n_jobs, cpu_count()])
 
-    if views is None:
-        if 'views' not in list(adata.uns.keys()) or len(adata.uns['views']) == 0:
-            raise(NameError('No view keys found in adata.uns["views"].'))
-        views = adata.uns['views']
+    if modalities is None:
+        if 'modalities' not in list(adata.uns.keys()) or len(adata.uns['modalities']) == 0:
+            raise(NameError('No modality keys found in adata.uns["modalities"].'))
+        modalities = adata.uns['modalities']
  
     indices, distances, epsilons = list(), list(), list()
     epsilons_thr = min([n_neighbors, 20]) - 1
 
-    for v in views:
+    for v in modalities:
         if method == 'sklearn':
             neigh = NearestNeighbors(n_neighbors=n_neighbors+1, n_jobs=n_jobs)
             neigh.fit(adata.obsm[v])

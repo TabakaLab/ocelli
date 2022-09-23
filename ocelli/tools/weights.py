@@ -17,23 +17,23 @@ class WeightEstimator():
 
     @staticmethod
     @ray.remote
-    def __weights_worker(views, nn, ecdfs, split, index):
+    def __weights_worker(modalities, nn, ecdfs, split, index):
         weights = list()
         for cell in split[index]:
             cell_scores = list()
-            for v1_id, _ in enumerate(views):
-                view_scores = list()
+            for v1_id, _ in enumerate(modalities):
+                modality_scores = list()
                 nn_ids = nn[v1_id][cell]
-                for v2_id, v2 in enumerate(views):
+                for v2_id, v2 in enumerate(modalities):
                     if v1_id != v2_id:
                         try:
                             axis_distances = np.linalg.norm(v2[nn_ids].toarray() - v2[cell].toarray(), axis=1) 
                         except AttributeError:
                             axis_distances = np.linalg.norm(v2[nn_ids] - v2[cell], axis=1) 
-                        view_scores.append(ecdfs[v2_id](axis_distances))
+                        modality_scores.append(ecdfs[v2_id](axis_distances))
                     else:
-                        view_scores.append(np.zeros(nn_ids.shape))
-                cell_scores.append(view_scores)
+                        modality_scores.append(np.zeros(nn_ids.shape))
+                cell_scores.append(modality_scores)
             weights.append(cell_scores)
 
         weights = np.asarray(weights)
@@ -59,31 +59,31 @@ class WeightEstimator():
         return scaled
 
 
-    def estimate(self, views, nn=None, n_pairs=1000):
-        n_views = len(views)
-        n_cells = views[0].shape[0]
-        if n_views > 1:
+    def estimate(self, modalities, nn=None, n_pairs=1000):
+        n_modalities = len(modalities)
+        n_cells = modalities[0].shape[0]
+        if n_modalities > 1:
     
             pairs = np.random.choice(range(n_cells), size=(n_pairs, 2))
             ecdfs = list()
-            for v in views:
-                view_dists = list()
+            for v in modalities:
+                modality_dists = list()
                 for i, _ in enumerate(pairs):
                     try:
                         pair_dist = np.linalg.norm(v[pairs[i, 0]].toarray() - v[pairs[i, 1]].toarray(), axis=None) 
                     except AttributeError:
                         pair_dist = np.linalg.norm(v[pairs[i, 0]] - v[pairs[i, 1]], axis=None) 
-                    view_dists.append(pair_dist)
-                ecdfs.append(ECDF(view_dists))
+                    modality_dists.append(pair_dist)
+                ecdfs.append(ECDF(modality_dists))
 
             split = np.array_split(range(n_cells), self.n_jobs)
 
-            views_ref = ray.put(views)
+            modalities_ref = ray.put(modalities)
             nn_ref = ray.put(nn)
             ecdfs_ref = ray.put(ecdfs)
             split_ref = ray.put(split)
 
-            weights = [self.__weights_worker.remote(views_ref, nn_ref, ecdfs_ref, split_ref, i) 
+            weights = [self.__weights_worker.remote(modalities_ref, nn_ref, ecdfs_ref, split_ref, i) 
                        for i in range(self.n_jobs)]
             weights = ray.get(weights)
             weights = np.vstack(weights)
@@ -101,7 +101,7 @@ class WeightEstimator():
     
 def weights(adata: anndata.AnnData, 
             n_pairs: int = 1000, 
-            views = None,
+            modalities = None,
             neighbors_key: str = 'neighbors',
             weights_key: str = 'weights',
             n_jobs: int = -1,
@@ -119,12 +119,12 @@ def weights(adata: anndata.AnnData,
     n_pairs
         Number of cell pairs used to estimate empirical cumulative
         distribution functions of intercellular distances. (default: 1000)
-    views
+    modalities
         A list of ``adata.obsm`` keys storing modalities.
-        If :obj:`None`, views' keys are loaded from ``adata.uns['key_views']``. (default: :obj:`None`)
+        If :obj:`None`, modalities' keys are loaded from ``adata.uns[modalities]``. (default: :obj:`None`)
     neighbors_key
         ``adata.uns[neighbors_key]`` stores the nearest neighbor indices
-        (:class:`numpy.ndarray` of shape ``(n_views, n_cells, n_neighbors)``).
+        (:class:`numpy.ndarray` of shape ``(n_modalities, n_cells, n_neighbors)``).
         (default: ``neighbors``)
     weights_key
         Weights will be saved to ``adata.obsm[weights_key]``. (default: `weights`)
@@ -150,13 +150,13 @@ def weights(adata: anndata.AnnData,
     if neighbors_key not in adata.uns:
         raise(KeyError('No nearest neighbors found in adata.uns[{}]. Run ocelli.pp.neighbors.'.format(neighbors_key)))
 
-    if views is None:
-        if 'views' not in list(adata.uns.keys()):
-            raise(NameError('No view keys found in adata.uns["views"].'))
-        views = adata.uns['views']
+    if modalities is None:
+        if 'modalities' not in list(adata.uns.keys()):
+            raise(NameError('No modality keys found in adata.uns["modalities"].'))
+        modalities = adata.uns['modalities']
  
-    if len(views) == 0:
-        raise(NameError('No view keys found in adata.uns["views"].'))
+    if len(modalities) == 0:
+        raise(NameError('No modality keys found in adata.uns["modalities"].'))
         
     n_jobs = cpu_count() if n_jobs == -1 else min([n_jobs, cpu_count()])
     
@@ -164,11 +164,11 @@ def weights(adata: anndata.AnnData,
         np.random.seed(random_state)
 
     we = WeightEstimator(n_jobs=n_jobs)
-    weights = we.estimate(views=[adata.obsm[key] for key in views], 
+    weights = we.estimate(modalities=[adata.obsm[key] for key in modalities], 
                           nn=adata.uns[neighbors_key], 
                           n_pairs=n_pairs)
 
-    adata.obsm[weights_key] = pd.DataFrame(weights, index=adata.obs.index, columns=views)
+    adata.obsm[weights_key] = pd.DataFrame(weights, index=adata.obs.index, columns=modalities)
     
     if verbose:
         print('Multimodal cell-specific weights estimated.')

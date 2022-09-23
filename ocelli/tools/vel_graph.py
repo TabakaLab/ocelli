@@ -26,7 +26,7 @@ def vel_graph(adata: anndata.AnnData,
     that have the subsequent timestamp. By default, timestamps are not utilized.
     
     Before constructing the graph, you must perform a nearest neighbors search in the MDM space. 
-    To do so, run ``ocelli.pp.neighbors(adata, views=X_mdm)``,
+    To do so, run ``ocelli.pp.neighbors(adata, modalities=[X_mdm])``,
     where ``X_mdm`` is a :class:`str`, and ``adata.obsm[X_mdm]`` stores a MDM embedding.
     
     Parameters

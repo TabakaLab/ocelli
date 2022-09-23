@@ -24,7 +24,7 @@ Preprocessing (pp)
    :toctree: .
 
    pp.LDA
-   pp.generate_views
+   pp.modality_generation
    
 
 Tools (tl)

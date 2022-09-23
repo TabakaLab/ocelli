@@ -2,15 +2,15 @@ import numpy as np
 import anndata
 from scipy.sparse import issparse
 
-def generate_views(adata: anndata.AnnData,
-                   lda_key: str = 'lda',
-                   n_top_vars: int = 100,
-                   top_vars_key: str = 'top_vars',
-                   verbose: bool = False,
-                   copy: bool = False):
+def modality_generation(adata: anndata.AnnData,
+                        lda_key: str = 'lda',
+                        n_top_vars: int = 100,
+                        top_vars_key: str = 'top_vars',
+                        verbose: bool = False,
+                        copy: bool = False):
     """Modality generation for unimodal data
 
-    Views can be generated automatically using topic modeling components,
+    Modalities can be generated automatically using topic modeling components,
     which are stored in ``adata.varm[lda_key]`` in an array of shape
     ``(n_vars, n_topics)``.
 
@@ -21,9 +21,9 @@ def generate_views(adata: anndata.AnnData,
     For example, if ``n_top_vars = 100``, at most 100 variables
     from each topic are saved. If fewer than ``n_top_vars`` variables
     are assigned to a topic, none get filtered out.
-    The resulting groups of variables form the newly-generated views
-    (views with zero variables are ignored and not saved).
-    Views are saved as :class:'numpy.ndarray' arrays in ``adata.obsm[view*]``,
+    The resulting groups of variables form the newly-generated modalities
+    (modalities with zero variables are ignored and not saved).
+    Modalities are saved as :class:'numpy.ndarray' arrays in ``adata.obsm[modality*]``,
     where ``*`` denotes an id of a topic.
 
     Parameters
@@ -47,8 +47,8 @@ def generate_views(adata: anndata.AnnData,
     -------
     :obj:`None`
         By default (``copy=False``), updates ``adata`` with the following fields:
-        ``adata.uns[views]`` (:class:`list` with ``adata.obsm`` keys storing generated views,
-        ``adata.obsm[view*]`` (:class:`numpy.ndarray` arrays of shape ``(n_cells, n_view*_vars)``; ``*`` denotes a topic id),
+        ``adata.uns[modalities]`` (:class:`list` with ``adata.obsm`` keys storing generated modalities,
+        ``adata.obsm[modality*]`` (:class:`numpy.ndarray` arrays of shape ``(n_obs, n_var)``; ``*`` denotes a topic id),
         ``adata.uns[top_vars_key]`` (:class:`dict` storing ids of top variables from all topics).
     :class:`anndata.AnnData`
         When ``copy=True`` is set, a copy of ``adata`` with those fields is returned.
@@ -70,7 +70,7 @@ def generate_views(adata: anndata.AnnData,
     adata.uns[top_vars_key] = D
 
     obsm_key = adata.uns['{}_params'.format(lda_key)]['output_key']
-    adata.uns['views'] = list()
+    adata.uns['modalities'] = list()
 
     topic_counter = 0
     for i in range(n_topics):
@@ -80,15 +80,15 @@ def generate_views(adata: anndata.AnnData,
 
         if v.shape[1] > 0:
             topic_counter += 1
-            adata.obsm['view{}'.format(i)] = v
-            adata.uns['views'].append('view{}'.format(i))
+            adata.obsm['modality{}'.format(i)] = v
+            adata.uns['modalities'].append('modality{}'.format(i))
             if verbose:
-                print('View {}: saved to adata.obsm[view{}].'.format(i, i))
+                print('Modality {}: saved to adata.obsm[modality{}].'.format(i, i))
         else:
             if verbose:
-                print('View {}: skipped, no genes selected.'.format(i))
+                print('Modality {}: skipped, no genes selected.'.format(i))
 
     if verbose:
-        print('{} topic-based views generated.'.format(topic_counter))
+        print('{} topic-based modalities generated.'.format(topic_counter))
 
     return adata if copy else None
