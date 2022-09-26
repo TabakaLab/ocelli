@@ -56,7 +56,7 @@ class MultimodalDiffusionMaps():
                       nn, 
                       epsilons, 
                       weights,
-                      normalize_single_modalities,
+                      unimodal_norm,
                       eigval_times_eigvec,
                       random_state, 
                       verbose):
@@ -87,7 +87,7 @@ class MultimodalDiffusionMaps():
             affinity_modality = coo_matrix((affinities[:, 2], (affinities[:, 0], affinities[:, 1])), 
                                          shape=(n_cells, n_cells)).tocsr()
             
-            if normalize_single_modalities:
+            if unimodal_norm:
                 diag_vals = np.asarray([1 / val if val != 0 else 0 for val in affinity_modality.sum(axis=1).A1])
                 affinity_modality = diags(diag_vals) @ affinity_modality
             
@@ -132,7 +132,7 @@ def MDM(adata: AnnData,
          neighbors_key: str = 'neighbors',
          epsilons_key: str = 'epsilons',
          output_key: str = 'X_mdm',
-         normalize_single_modalities: bool = True,
+         unimodal_norm: bool = True,
          eigval_times_eigvec: bool = True,
          n_jobs: int = -1,
          random_state = None,
@@ -164,7 +164,7 @@ def MDM(adata: AnnData,
         (default: ``epsilons``)
     output_key
         Multimodal diffusion maps embedding is saved to ``adata.obsm[output_key]``. (default: `X_mdm`)
-    normalize_single_modalities
+    unimodal_norm
         If ``True``, unimodal kernel matrices are normalized. (default: ``True``)
     eigval_times_eigvec
         If ``True``, the multimodal diffusion maps embedding is calculated by multiplying
@@ -213,7 +213,7 @@ def MDM(adata: AnnData,
                                                                            nn = adata.uns[neighbors_key],
                                                                            epsilons = adata.uns[epsilons_key],
                                                                            weights = np.asarray(adata.obsm[weights_key]),
-                                                                           normalize_single_modalities = normalize_single_modalities,
+                                                                           unimodal_norm = unimodal_norm,
                                                                            eigval_times_eigvec = eigval_times_eigvec,
                                                                            random_state = random_state,
                                                                            verbose = verbose)

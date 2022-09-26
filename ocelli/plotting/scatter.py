@@ -39,7 +39,6 @@ def scatter(adata: anndata.AnnData,
         or a custom colormap object. (default: ``Spectral``)
     marker_size
         Size of scatter plot markers. (default: 3)
-
     Returns
     -------
     :class:`plotly.graph_objs._figure.Figure`
