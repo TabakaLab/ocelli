@@ -68,7 +68,7 @@ def topics(adata: anndata.AnnData,
     if n_rows != 1:
         n_columns = 5
 
-    fig, ax = plt.subplots(n_rows, n_columns)
+    fig, ax = plt.subplots(n_rows, n_columns, figsize=(n_columns*1.5, n_rows*1.5))
     for i in range(n_rows * n_columns):
         if i < n_topics:
             df = pd.DataFrame(adata.obsm[x_key], columns=['x', 'y'])

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 def weights(adata: anndata.AnnData,
             weights_key: str = 'weights',
-            celltype_key: str = 'celltype',
+            grouping_key = None,
             showmeans: bool = False, 
             showmedians: bool = True, 
             showextrema: bool = False):
@@ -24,9 +24,9 @@ def weights(adata: anndata.AnnData,
         The annotated data matrix.
     weights_key
         ``adata.obsm[weights_key]`` stores multimodal weights. (default: ``weights``)
-    celltype_key
-        ``adata.obs[celltype_key]`` stores celltypes. For each celltype 
-        a seperate violin plot is generated. If ``celltype_key`` is not found, 
+    grouping_key
+        ``adata.obs[grouping_key]`` stores celltypes. For each celltype 
+        a seperate violin plot is generated. If ``grouping_key`` is not found, 
         violin plots for all cells are generated. (default: ``celltype``)
     showmeans
         If ``True``, will toggle rendering of the means. (default: ``False``)
@@ -41,12 +41,17 @@ def weights(adata: anndata.AnnData,
         :class:`matplotlib.figure.Figure` and :class:`numpy.ndarray` storing :class:`matplotlib` figure and axes.
     """
     
-    if celltype_key not in list(adata.obs.keys()):
-        modalities = list(adata.obsm['weights'].columns)
-        fig, ax = plt.subplots(nrows=len(modalities), ncols=1)
-        fig.supylabel('modalities', size=6)
-        fig.suptitle('weights', size=6)
-
+    modalities = list(adata.obsm['weights'].columns)
+    
+    groups = ['none'] if grouping_key is None else list(np.unique(adata.obs[grouping_key]))
+    
+    nrows, ncols = len(modalities), len(groups)
+    
+    fig, ax = plt.subplots(nrows=nrows, ncols=ncols, figsize=(ncols*1.2, nrows*0.8))
+    fig.supylabel('Modalities', size=6)
+    fig.suptitle('Weights', size=6)
+    
+    if grouping_key is None:
         for i, m in enumerate(modalities):
             ax[i].violinplot(adata.obsm['weights'][m], 
                              showmeans=showmeans, 
@@ -61,23 +66,15 @@ def weights(adata: anndata.AnnData,
             ax[i].set_yticks([0, 0.5, 1])
             ax[i].set_yticklabels([0, 0.5, 1])
             ax[i].set_ylim([0,1])
-        plt.tight_layout()
     else:
-        modalities = list(adata.obsm['weights'].columns)
-        celltypes = list(np.unique(adata.obs[celltype_key]))
-
-        fig, ax = plt.subplots(nrows=len(modalities), ncols=len(celltypes))
-        fig.supylabel('modalities', size=6)
-        fig.suptitle('celltypes', size=6)
-
         for i, m in enumerate(modalities):
-            for j, celltype in enumerate(celltypes):
-                ax[i][j].violinplot(adata[adata.obs[celltype_key] == celltype].obsm[weights_key][m], 
+            for j, g in enumerate(groups):
+                ax[i][j].violinplot(adata[adata.obs[grouping_key] == g].obsm[weights_key][m], 
                                     showmeans=showmeans, 
                                     showmedians=showmedians, 
                                     showextrema=showextrema)
                 if i == 0:
-                    ax[i][j].set_title(celltypes[j], size=6)
+                    ax[i][j].set_title(groups[j], size=6)
                 if j == 0:
                     ax[i][j].set_ylabel(m, size=6)
                 ax[i][j].spines['right'].set_visible(False)
@@ -91,6 +88,7 @@ def weights(adata: anndata.AnnData,
                 else:
                     ax[i][j].set_yticklabels([])
                 ax[i][j].set_ylim([0,1])
-        plt.tight_layout()
+    
+    plt.tight_layout()
     
     return fig, ax

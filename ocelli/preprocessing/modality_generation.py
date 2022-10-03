@@ -1,17 +1,20 @@
 import numpy as np
 import anndata
 from scipy.sparse import issparse
+import scvelo as scv
+
 
 def modality_generation(adata: anndata.AnnData,
-                        lda_key: str = 'lda',
+                        topic_key: str = 'lda',
                         n_top_vars: int = 100,
                         top_vars_key: str = 'top_vars',
+                        norm_log: bool = True,
                         verbose: bool = False,
                         copy: bool = False):
     """Modality generation for unimodal data
 
     Modalities can be generated automatically using topic modeling components,
-    which are stored in ``adata.varm[lda_key]`` in an array of shape
+    which are stored in ``adata.varm[topic_key]`` in an array of shape
     ``(n_vars, n_topics)``.
 
     Firstly, variables (e.g. genes) are grouped into topics based
@@ -30,8 +33,8 @@ def modality_generation(adata: anndata.AnnData,
     ----------
     adata
         The annotated data matrix.
-    lda_key
-        ``adata.varm[lda_key]`` stores LDA components
+    topic_key
+        ``adata.varm`` key storing topic components
         (:class:`numpy.ndarray` of shape ``(n_vars, n_topics)``). (default: `lda`)
     n_top_vars
         The maximum number of top variables considered for each topic.
@@ -54,41 +57,53 @@ def modality_generation(adata: anndata.AnnData,
         When ``copy=True`` is set, a copy of ``adata`` with those fields is returned.
     """
 
-    if lda_key not in list(adata.varm.keys()):
+    if topic_key not in list(adata.varm.keys()):
         raise (KeyError('No topic modeling components found. Run ocelli.pp.LDA.'))
 
-    n_topics = adata.uns['{}_params'.format(lda_key)]['n_components']
-    D = {i: [] for i in range(n_topics)}
+    n_topics = adata.varm[topic_key].shape[1]
+    
+    topic_assignment = np.argmax(adata.varm[topic_key], axis=1)
+    
+    d_topic_assignment = dict()
+    
+    for i, t in enumerate(topic_assignment):
+        if t in d_topic_assignment:
+            d_topic_assignment[t].append(i)
+        else:
+            d_topic_assignment[t] = [i]
+            
+    modalities = np.unique(list(d_topic_assignment.keys()))
+    
+    for m in modalities:
+        arg_sorted = np.argsort(adata.varm[topic_key][d_topic_assignment[m], m])[-n_top_vars:]
+        d_topic_assignment[m] = np.asarray(d_topic_assignment[m])[arg_sorted]
 
-    for i, t in enumerate(np.argmax(adata.varm[lda_key], axis=1)):
-        D[t].append(i)
+    adata.uns[top_vars_key] = d_topic_assignment
 
-    for i in range(n_topics):
-        arg_sorted = np.argsort(adata.varm[lda_key][D[i], i])[-n_top_vars:]
-        D[i] = np.asarray(D[i])[arg_sorted]
-
-    adata.uns[top_vars_key] = D
-
-    obsm_key = adata.uns['{}_params'.format(lda_key)]['output_key']
+    obsm_key = adata.uns['{}_params'.format(topic_key)]['output_key']
     adata.uns['modalities'] = list()
+    
+    obsm_key = None
 
     topic_counter = 0
-    for i in range(n_topics):
-        v = adata.X[:, D[i]] if obsm_key is None else adata.obsm[obsm_key][:, D[i]]
+    for m in modalities:
+        v = adata.X[:, d_topic_assignment[m]] if obsm_key is None else adata.obsm[obsm_key][:, d_topic_assignment[m]]
+        
         if issparse(v):
             v = v.toarray()
+            
+        if norm_log:
+            x = anndata.AnnData(v)
+            scv.pp.normalize_per_cell(x, counts_per_cell_after=10000)
+            scv.pp.log1p(x)
+            v = x.X
 
-        if v.shape[1] > 0:
-            topic_counter += 1
-            adata.obsm['modality{}'.format(i)] = v
-            adata.uns['modalities'].append('modality{}'.format(i))
-            if verbose:
-                print('Modality {}: saved to adata.obsm[modality{}].'.format(i, i))
-        else:
-            if verbose:
-                print('Modality {}: skipped, no genes selected.'.format(i))
+        adata.obsm['modality{}'.format(m)] = v
+        adata.uns['modalities'].append('modality{}'.format(m))
+        if verbose:
+            print('Modality {} --> saved to adata.obsm[modality{}].'.format(m, m))
 
     if verbose:
-        print('{} topic-based modalities generated.'.format(topic_counter))
+        print('{} topic-based modalities generated.'.format(len(modalities)))
 
     return adata if copy else None

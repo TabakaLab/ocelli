@@ -143,6 +143,7 @@ def LDA(adata: anndata.AnnData,
                                                  'verbose': verbose,
                                                  'random_state': random_state,
                                                  'n_jobs': n_jobs,
-                                                 'output_key': output_key}
+                                                 'output_key': output_key,
+                                                 'obsm_key': obsm_key}
 
     return adata if copy else None

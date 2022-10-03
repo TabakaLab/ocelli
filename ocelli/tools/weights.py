@@ -4,108 +4,54 @@ import ray
 from multiprocessing import cpu_count
 import anndata
 import pandas as pd
+from scipy.sparse import issparse
 
 
-class WeightEstimator():
-    """Multimodal cell weights class"""
-    
-    def __init__(self, n_jobs=cpu_count()):
-        if not ray.is_initialized():
-            ray.init(num_cpus=n_jobs)
-        self.n_jobs = n_jobs
-        
-
-    @staticmethod
-    @ray.remote
-    def __weights_worker(modalities, nn, ecdfs, split, index):
-        weights = list()
-        for cell in split[index]:
-            cell_scores = list()
-            for v1_id, _ in enumerate(modalities):
-                modality_scores = list()
-                nn_ids = nn[v1_id][cell]
-                for v2_id, v2 in enumerate(modalities):
-                    if v1_id != v2_id:
-                        try:
-                            axis_distances = np.linalg.norm(v2[nn_ids].toarray() - v2[cell].toarray(), axis=1) 
-                        except AttributeError:
-                            axis_distances = np.linalg.norm(v2[nn_ids] - v2[cell], axis=1) 
-                        modality_scores.append(ecdfs[v2_id](axis_distances))
+@ray.remote
+def weights_worker(modalities, nn, ecdfs, split):
+    w = list()
+    for cell in split:
+        cell_scores = list()
+        for m0, _ in enumerate(modalities):
+            modality_scores = list()
+            nn_ids = nn[m0][cell]
+            for m1, M1 in enumerate(modalities):
+                if m0 != m1:
+                    if issparse(M1):
+                        axis_distances = np.linalg.norm(M1[nn_ids].toarray() - M1[cell].toarray(), axis=1)
                     else:
-                        modality_scores.append(np.zeros(nn_ids.shape))
-                cell_scores.append(modality_scores)
-            weights.append(cell_scores)
+                        axis_distances = np.linalg.norm(M1[nn_ids] - M1[cell], axis=1)
+                    modality_scores.append(ecdfs[m1](axis_distances))
+                else:
+                    modality_scores.append(np.zeros(nn_ids.shape))
+            cell_scores.append(modality_scores)
+        w.append(cell_scores)
 
-        weights = np.asarray(weights)
-        weights = np.median(weights, axis=3)
-        weights = np.sum(weights, axis=1)
+    w = np.sum(np.median(np.asarray(w), axis=3), axis=1)
 
-        return weights
-
-
-    @staticmethod
-    @ray.remote
-    def __weights_scaler_worker(weights, nn, split, index, alpha=10):
-        scaled = np.zeros((len(split[index]), weights.shape[1]))
-        for i in split[index]:
-            scaled[i - split[index][0]] = np.mean(weights[nn[np.argmax(weights[i])][i], :], axis=0)
-            
-        for i, row in enumerate(scaled):
-            if np.max(row) != 0:
-                scaled[i] = row / np.max(row)
-            row_exp = np.exp(scaled[i])**alpha
-            scaled[i] = row_exp / np.sum(row_exp)
-            
-        return scaled
+    return w
 
 
-    def estimate(self, modalities, nn=None, n_pairs=1000):
-        n_modalities = len(modalities)
-        n_cells = modalities[0].shape[0]
-        if n_modalities > 1:
-    
-            pairs = np.random.choice(range(n_cells), size=(n_pairs, 2))
-            ecdfs = list()
-            for v in modalities:
-                modality_dists = list()
-                for i, _ in enumerate(pairs):
-                    try:
-                        pair_dist = np.linalg.norm(v[pairs[i, 0]].toarray() - v[pairs[i, 1]].toarray(), axis=None) 
-                    except AttributeError:
-                        pair_dist = np.linalg.norm(v[pairs[i, 0]] - v[pairs[i, 1]], axis=None) 
-                    modality_dists.append(pair_dist)
-                ecdfs.append(ECDF(modality_dists))
+@ray.remote
+def scaling_worker(w, nn, split, alpha=10):
+    weights_scaled = np.asarray([np.mean(w[nn[np.argmax(w[obs])][obs], :], axis=0) for obs in split])
 
-            split = np.array_split(range(n_cells), self.n_jobs)
+    for i, row in enumerate(weights_scaled):
+        if np.max(row) != 0:
+            weights_scaled[i] = row / np.max(row)
+        row_exp = np.exp(weights_scaled[i]) ** alpha
+        weights_scaled[i] = row_exp / np.sum(row_exp)
 
-            modalities_ref = ray.put(modalities)
-            nn_ref = ray.put(nn)
-            ecdfs_ref = ray.put(ecdfs)
-            split_ref = ray.put(split)
+    return weights_scaled
 
-            weights = [self.__weights_worker.remote(modalities_ref, nn_ref, ecdfs_ref, split_ref, i) 
-                       for i in range(self.n_jobs)]
-            weights = ray.get(weights)
-            weights = np.vstack(weights)
-            weights_ref = ray.put(weights)
 
-            weights_scaled = [self.__weights_scaler_worker.remote(weights_ref, nn_ref, split_ref, i) 
-                              for i in range(self.n_jobs)]
-            weights = np.concatenate(ray.get(weights_scaled), axis=0)
-
-        else:
-            weights = np.ones((n_cells, 1))
-
-        return weights
-
-    
-def weights(adata: anndata.AnnData, 
-            n_pairs: int = 1000, 
-            modalities = None,
+def weights(adata: anndata.AnnData,
+            n_pairs: int = 1000,
+            modalities=None,
             neighbors_key: str = 'neighbors',
             weights_key: str = 'weights',
             n_jobs: int = -1,
-            random_state = None,
+            random_state=None,
             verbose: bool = False,
             copy: bool = False):
     """Multimodal cell-specific weights
@@ -146,31 +92,55 @@ def weights(adata: anndata.AnnData,
     :class:`anndata.AnnData`
         When ``copy=True`` is set, a copy of ``adata`` with those fields is returned.
     """
+    n_jobs = cpu_count() if n_jobs == -1 else min([n_jobs, cpu_count()])
+
+    if not ray.is_initialized():
+        ray.init(num_cpus=n_jobs)
 
     if neighbors_key not in adata.uns:
-        raise(KeyError('No nearest neighbors found in adata.uns[{}]. Run ocelli.pp.neighbors.'.format(neighbors_key)))
+        raise(KeyError('No nearest neighbors found. Run ocelli.pp.neighbors.'))
 
-    if modalities is None:
-        if 'modalities' not in list(adata.uns.keys()):
-            raise(NameError('No modality keys found in adata.uns["modalities"].'))
-        modalities = adata.uns['modalities']
- 
-    if len(modalities) == 0:
-        raise(NameError('No modality keys found in adata.uns["modalities"].'))
-        
-    n_jobs = cpu_count() if n_jobs == -1 else min([n_jobs, cpu_count()])
-    
+    modality_names = adata.uns['modalities'] if modalities is None else modalities
+
     if random_state is not None:
         np.random.seed(random_state)
 
-    we = WeightEstimator(n_jobs=n_jobs)
-    weights = we.estimate(modalities=[adata.obsm[key] for key in modalities], 
-                          nn=adata.uns[neighbors_key], 
-                          n_pairs=n_pairs)
+    n_modalities = len(modality_names)
+    modalities = [adata.obsm[m].toarray() if issparse(adata.obsm[m]) else adata.obsm[m] for m in modality_names]
 
-    adata.obsm[weights_key] = pd.DataFrame(weights, index=adata.obs.index, columns=modalities)
-    
+    nn = adata.uns[neighbors_key]
+    n_obs = adata.shape[0]
+
+    if n_modalities > 1:
+        pairs = np.random.choice(range(n_obs), size=(n_pairs, 2))
+        ecdfs = list()
+        for m in modalities:
+            if issparse(m):
+                modality_dists = [np.linalg.norm(m[pairs[i, 0]].toarray() - m[pairs[i, 1]].toarray(), axis=None)
+                                  for i in range(n_pairs)]
+            else:
+                modality_dists = [np.linalg.norm(m[pairs[i, 0]] - m[pairs[i, 1]], axis=None) for i in range(n_pairs)]
+            ecdfs.append(ECDF(modality_dists))
+
+        splits = np.array_split(range(n_obs), n_jobs)
+        modalities_ref = ray.put(modalities)
+        nn_ref = ray.put(nn)
+        ecdfs_ref = ray.put(ecdfs)
+        weights = ray.get([weights_worker.remote(modalities_ref, nn_ref, ecdfs_ref, split) for split in splits])
+        weights = np.vstack(weights)
+
+        weights_ref = ray.put(weights)
+        weights = ray.get([scaling_worker.remote(weights_ref, nn_ref, split) for split in splits])
+        weights = np.concatenate(weights, axis=0)
+    else:
+        weights = np.ones((n_obs, 1))
+
+    adata.obsm[weights_key] = pd.DataFrame(weights, index=list(adata.obs.index), columns=modality_names)
+
     if verbose:
         print('Multimodal cell-specific weights estimated.')
+
+    if ray.is_initialized():
+        ray.shutdown()
 
     return adata if copy else None
