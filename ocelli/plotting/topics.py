@@ -2,6 +2,7 @@ import anndata
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import numpy as np
 
 
 def topics(adata: anndata.AnnData,
@@ -68,17 +69,19 @@ def topics(adata: anndata.AnnData,
     if n_rows != 1:
         n_columns = 5
 
-    fig, ax = plt.subplots(n_rows, n_columns, figsize=(n_columns*1.5, n_rows*1.5))
+    fig, ax = plt.subplots(n_rows, n_columns)
+    vmin, vmax = 0, np.percentile(adata.obsm[topics_key].flatten(), 95)
+    
     for i in range(n_rows * n_columns):
+        df = pd.DataFrame(adata.obsm[x_key], columns=['x', 'y'])
         if i < n_topics:
-            df = pd.DataFrame(adata.obsm[x_key], columns=['x', 'y'])
-
-            ax[i // 5][i % 5].scatter(df['x'], df['y'], c=adata.obsm[topics_key][:, i], 
-                                      cmap=cmap, alpha=1, s=marker_size, edgecolors='none')
-            ax[i // 5][i % 5].axis('off')
-            ax[i // 5][i % 5].set_title('{}'.format(i), fontsize=6)
-        else:
-            ax[i // 5][i % 5].axis('off')
-    plt.tight_layout()
+            im = ax[i // 5][i % 5].scatter(df['x'], df['y'], c=adata.obsm[topics_key][:, i], cmap=cmap, alpha=1, s=marker_size, edgecolors='none', vmin=vmin, vmax=vmax)
+            ax[i // 5][i % 5].set_title('{}'.format(i), fontsize=4)
+        ax[i // 5][i % 5].axis('off')
+        ax[i // 5][i % 5].set_aspect('equal')
+        
+    fig.subplots_adjust(right=0.9)
+    cbar_ax = fig.add_axes([0.92, 0.15, 0.02, 0.7])
+    fig.colorbar(im, cax=cbar_ax)
     
     return fig, ax

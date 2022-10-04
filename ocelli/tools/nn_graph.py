@@ -2,14 +2,14 @@ import anndata
 import numpy as np
 
 def nn_graph(adata: anndata.AnnData,
-             n: int = 10,
-             neighbors_key: str = 'neighbors_mdm',
+             n_edges: int = 10,
+             neighbors_key: str = 'X_mdm',
              graph_key: str = 'graph',
              verbose: bool = False,
              copy: bool = False):
     """Nearest neighbors-based graph
 
-    From each graph node, ``n`` edges come out. They correspond to respective cell's nearest neighbors.
+    From each graph node, ``n_edges`` edges come out. They correspond to respective cell's nearest neighbors.
     
     Before constructing the graph, you must perform a nearest neighbors search in the Multimodal Diffusion Maps space. 
     To do so, run ``ocelli.pp.neighbors(adata, modalities=[X_mdm])``,
@@ -19,13 +19,12 @@ def nn_graph(adata: anndata.AnnData,
     ----------
     adata
         The annotated data matrix.
-    n
+    n_edges
         number of edges coming out of each node. (default: 10)
     neighbors_key
-        ``adata.uns[neighbors_key]`` stores nearest neighbors indices from
-        the MDM space (:class:`numpy.ndarray` of shape ``(1, n_cells, n_neighbors)``). (default: ``neighbors_mdm``)
+        Stores ``adata.obsm`` key used for calculating nearest neighbors. (default: `X_mdm`)
     graph_key
-        The graph is saved to ``adata.obsm[graph_key]``. (default: ``graph``)
+        The graph is saved to ``adata.obsm[graph_key]``. (default: `graph`)
     verbose
         Print progress notifications. (default: ``False``)
     copy
@@ -40,12 +39,12 @@ def nn_graph(adata: anndata.AnnData,
         When ``copy=True`` is set, a copy of ``adata`` with those fields is returned.
     """
     
-    if neighbors_key not in adata.uns:
-        raise(KeyError('No nearest neighbors found in adata.uns[{}]. Run ocelli.pp.neighbors.'.format(neighbors_key)))
+    if 'neighbors_{}'.format(neighbors_key) not in adata.obsm:
+        raise(KeyError('No nearest neighbors found in adata.obsm[neighbors_{}]. Run ocelli.pp.neighbors.'.format(neighbors_key)))
         
-    adata.obsm[graph_key] = np.asarray(adata.uns[neighbors_key][0, :, :n])
+    adata.obsm[graph_key] = np.asarray(adata.obsm['neighbors_{}'.format(neighbors_key)][:, :n_edges])
 
     if verbose:
-        print('Nearest neighbors-based graph constructed.')
+        print('[{}] Nearest neighbors-based graph constructed.'.format(neighbors_key))
     
     return adata if copy else None

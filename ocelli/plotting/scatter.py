@@ -71,7 +71,7 @@ def scatter(adata: anndata.AnnData,
             fig, ax = plt.subplots(1)
             ax.set_aspect('equal')
             try:
-                ax.scatter(x=df['x'], y=df['y'], s=marker_size, c=df['color'], cmap=cmap)
+                ax.scatter(x=df['x'], y=df['y'], s=marker_size, c=df['color'], cmap=cmap, edgecolor='none')
                 scalarmappaple = mpl.cm.ScalarMappable(norm=mpl.colors.Normalize(vmin=min(df['color']), vmax=max(df['color'])), cmap=cmap)
                 scalarmappaple.set_array(256)
                 cbar = plt.colorbar(scalarmappaple)
@@ -82,11 +82,11 @@ def scatter(adata: anndata.AnnData,
                 types = np.unique(df['color'])
                 d = {t: i for i, t in enumerate(types)}
                 df['c'] = [d[el] for el in df['color']]
-                ax.scatter(x=df['x'], y=df['y'], s=marker_size, c=df['c'], cmap=cmap)
+                ax.scatter(x=df['x'], y=df['y'], s=marker_size, c=df['c'], cmap=cmap, edgecolor='none')
                 plt.axis('off')
                 patches = [Line2D(range(1), range(1), color="white", marker='o', 
                           markerfacecolor=cmap(d[t]/(len(d.keys()))), label=t) for t in d]
-                plt.legend(handles=patches, fontsize=6, borderpad=0, frameon=False)
+                plt.legend(handles=patches, fontsize=4, borderpad=0, frameon=False)
             return fig, ax
         elif dim == 3:
             raise(ValueError('Visualized embedding must be 2-dimensional. You passed {} dimensions. Set static = False.'.format(dim)))

@@ -1,7 +1,9 @@
 import numpy as np
 import anndata
 from scipy.sparse import issparse
-import scvelo as scv
+import scanpy as scp
+import sys
+import os
 
 
 def modality_generation(adata: anndata.AnnData,
@@ -94,8 +96,15 @@ def modality_generation(adata: anndata.AnnData,
             
         if norm_log:
             x = anndata.AnnData(v)
-            scv.pp.normalize_per_cell(x, counts_per_cell_after=10000)
-            scv.pp.log1p(x)
+            
+            old_stdout = sys.stdout # prevent any prints from scanpy
+            sys.stdout = open(os.devnull, "w")
+            
+            scp.pp.normalize_total(x, target_sum=10000)
+            scp.pp.log1p(x)
+            
+            sys.stdout = old_stdout
+            
             v = x.X
 
         adata.obsm['modality{}'.format(m)] = v

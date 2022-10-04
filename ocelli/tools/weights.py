@@ -48,7 +48,6 @@ def scaling_worker(w, nn, split, alpha=10):
 def weights(adata: anndata.AnnData,
             n_pairs: int = 1000,
             modalities=None,
-            neighbors_key: str = 'neighbors',
             weights_key: str = 'weights',
             n_jobs: int = -1,
             random_state=None,
@@ -68,10 +67,6 @@ def weights(adata: anndata.AnnData,
     modalities
         A list of ``adata.obsm`` keys storing modalities.
         If :obj:`None`, modalities' keys are loaded from ``adata.uns[modalities]``. (default: :obj:`None`)
-    neighbors_key
-        ``adata.uns[neighbors_key]`` stores the nearest neighbor indices
-        (:class:`numpy.ndarray` of shape ``(n_modalities, n_cells, n_neighbors)``).
-        (default: ``neighbors``)
     weights_key
         Weights will be saved to ``adata.obsm[weights_key]``. (default: `weights`)
     n_jobs
@@ -97,9 +92,6 @@ def weights(adata: anndata.AnnData,
     if not ray.is_initialized():
         ray.init(num_cpus=n_jobs)
 
-    if neighbors_key not in adata.uns:
-        raise(KeyError('No nearest neighbors found. Run ocelli.pp.neighbors.'))
-
     modality_names = adata.uns['modalities'] if modalities is None else modalities
 
     if random_state is not None:
@@ -108,7 +100,6 @@ def weights(adata: anndata.AnnData,
     n_modalities = len(modality_names)
     modalities = [adata.obsm[m].toarray() if issparse(adata.obsm[m]) else adata.obsm[m] for m in modality_names]
 
-    nn = adata.uns[neighbors_key]
     n_obs = adata.shape[0]
 
     if n_modalities > 1:
@@ -124,7 +115,7 @@ def weights(adata: anndata.AnnData,
 
         splits = np.array_split(range(n_obs), n_jobs)
         modalities_ref = ray.put(modalities)
-        nn_ref = ray.put(nn)
+        nn_ref = ray.put([adata.obsm['neighbors_{}'.format(m)] for m in modality_names])
         ecdfs_ref = ray.put(ecdfs)
         weights = ray.get([weights_worker.remote(modalities_ref, nn_ref, ecdfs_ref, split) for split in splits])
         weights = np.vstack(weights)

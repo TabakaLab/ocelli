@@ -1,6 +1,6 @@
 import nmslib
 import numpy as np
-from scipy.sparse import csr_matrix
+from scipy.sparse import issparse
 from sklearn.neighbors import NearestNeighbors
 from multiprocessing import cpu_count
 import anndata
@@ -40,9 +40,6 @@ def neighbors(adata: anndata.AnnData,
               n_neighbors: int = 20,
               modalities = None,
               method: str = 'sklearn',
-              neighbors_key: str = 'neighbors',
-              epsilons_key: str = 'epsilons',
-              distances_key: str = 'distances',
               n_jobs: int = -1,
               verbose: bool = False,
               copy: bool = False):
@@ -71,15 +68,6 @@ def neighbors(adata: anndata.AnnData,
             'nmslib': uses the :class:`nmslib` package, which is faster for very big datasets 
             (hundreds of thousands of cells) but less accurate,
             as it is an approximate nearest neighbors algorithm.
-    neighbors_key
-        The nearest neighbors indices are saved in ``adata.uns[neighbors_key]``.
-        (default: ``neighbors``)
-    epsilons_key
-        The nearest neighbors epsilons are saved in ``adata.uns[epsilons_key]``.
-        (default: ``epsilons``)
-    distances_key
-        The nearest neighbors distances are saved in ``adata.uns[distances_key]``.
-        (default: ``distances``)
     n_jobs
         The number of parallel jobs. If the number is larger than the number of CPUs, it is changed to -1.
         -1 means all processors are used. (default: -1)
@@ -92,9 +80,8 @@ def neighbors(adata: anndata.AnnData,
     -------
     :obj:`None`
         By default (``copy=False``), updates ``adata`` with the following fields:
-        ``adata.uns[neighbors_key]`` (:class:`numpy.ndarray` of shape ``(n_modalities, n_obs, n_neighbors)``),
-        ``adata.uns[epsilons_key]`` (:class:`numpy.ndarray` of shape ``(n_modalities, n_obs)``),
-        ``adata.uns[distances_key]`` (:class:`numpy.ndarray` of shape ``(n_modalities, n_obs, n_neighbors)``).
+        ``adata.obsm[neighbors_*]`` (:class:`numpy.ndarray` of shape ``(n_obs, n_neighbors)``, ``*`` denotes modality name),
+        ``adata.obsm[distances_*]`` (:class:`numpy.ndarray` of shape ``(n_modalities, n_obs, n_neighbors)``, ``*`` denotes modality name).
     :class:`anndata.AnnData`
         When ``copy=True`` is set, a copy of ``adata`` with those fields is returned.
     """
@@ -107,36 +94,29 @@ def neighbors(adata: anndata.AnnData,
         modalities = adata.uns['modalities']
  
     indices, distances, epsilons = list(), list(), list()
-    epsilons_thr = min([n_neighbors, 20]) - 1
 
-    for v in modalities:
+    for m in modalities:
         if method == 'sklearn':
             neigh = NearestNeighbors(n_neighbors=n_neighbors+1, n_jobs=n_jobs)
-            neigh.fit(adata.obsm[v])
-            nn = neigh.kneighbors(adata.obsm[v])
+            neigh.fit(adata.obsm[m])
+            nn = neigh.kneighbors(adata.obsm[m])
             
-            indices.append(nn[1][:, 1:])
-            distances.append(nn[0][:, 1:])
-            epsilons.append(nn[0][:, epsilons_thr + 1])
-            
+            adata.obsm['neighbors_{}'.format(m)] = nn[1][:, 1:]
+            adata.obsm['distances_{}'.format(m)] = nn[0][:, 1:]
+
         elif method == 'nmslib':
             try:
-                neigh = nmslib_nn(adata.obsm[v], n_neighbors, n_jobs)
+                neigh = nmslib_nn(adata.obsm[m], n_neighbors, n_jobs)
             except ValueError:
                 raise(ValueError('The value n_neighbors={} is too high for NMSLIB. Practically, 20-50 neighbors are almost always enough.'.format(n_neighbors)))
                 
-            indices.append(neigh[0])
-            distances.append(neigh[1])
-            epsilons.append(neigh[1][:, epsilons_thr])
+            adata.obsm['neighbors_{}'.format(m)] = neigh[0]
+            adata.obsm['distances_{}'.format(m)] = neigh[1]
             
         else:
-            raise(NameError('Wrong nearest neighbor search method. Choose one from: sklearn, nmslib.'))
-
-    adata.uns[neighbors_key] = np.asarray(indices)
-    adata.uns[distances_key] = np.asarray(distances)
-    adata.uns[epsilons_key] = np.asarray(epsilons)
-
-    if verbose:
-        print('{} nearest neighbors calculated.'.format(n_neighbors))
-
+            raise(NameError('Wrong nearest neighbor search method. Valid options: sklearn, nmslib.'))
+            
+        if verbose:
+                print('[{}] {} nearest neighbors calculated.'.format(m, n_neighbors))
+    
     return adata if copy else None

@@ -9,7 +9,7 @@ import os
 def FA2(adata: anndata.AnnData,
         n_components: int = 2,
         graph_key: str = 'graph',
-        n_steps: int = 1000,
+        n_iter: int = 4000,
         random_state = None,
         n_jobs: int = -1,
         flags: str = '',
@@ -29,8 +29,8 @@ def FA2(adata: anndata.AnnData,
         Defines whether ForceAtlas2 data reduction should be 2- or 3-dimensional. Valid options: 2, 3. (default: 2)
     graph_key
         ``adata.obsm[graph_key]`` stores the graph to be visualized. (default: `graph`)
-    n_steps
-        The number of ForceAtlas2 iterations. (default: 1000)
+    n_iter
+        The number of ForceAtlas2 iterations. (default: 4000)
     random_state
         Pass an :obj:`int` for reproducible results across multiple function calls. (default: :obj:`None`)
     n_jobs
@@ -75,7 +75,7 @@ def FA2(adata: anndata.AnnData,
                '--input', 
                graph_path, 
                '--nsteps',
-               n_steps, 
+               n_iter, 
                '--output', 
                output_name,
                flags]

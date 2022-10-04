@@ -2,11 +2,12 @@ import anndata
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
 from multiprocessing import cpu_count
+from scipy.sparse import issparse
 
 
 def vel_graph(adata: anndata.AnnData,
-              n: int = 10,
-              neighbors_key: str = 'neighbors_mdm',
+              n_edges: int = 10,
+              neighbors_key: str = 'X_mdm',
               cell_transitions_key: str = 'velocity_graph',
               graph_key: str = 'graph',
               use_timestamps: bool = False,
@@ -67,8 +68,8 @@ def vel_graph(adata: anndata.AnnData,
         When ``copy=True`` is set, a copy of ``adata`` with those fields is returned.
     """
     
-    if neighbors_key not in adata.uns:
-        raise(KeyError('No nearest neighbors found in adata.uns["{}"]. Run oci.pp.neighbors on MDM embeddings.'.format(neighbors_key)))
+    #if neighbors_key not in adata.uns:
+    #    raise(KeyError('No nearest neighbors found in adata.uns["{}"]. Run oci.pp.neighbors on MDM embeddings.'.format(neighbors_key)))
     
     if cell_transitions_key not in adata.uns:
         raise(KeyError('No velocity transitions found in adata.uns["{}"].'.format(cell_transitions_key)))
@@ -118,16 +119,21 @@ def vel_graph(adata: anndata.AnnData,
                     df[y_i0.obs['id'][j]] += list(y_i0.obs['id'][el])[:n - velocity_activity[y_i0.obs['id'][j]]]
     else:
         df = list()
-        for i, el in enumerate(adata.uns[neighbors_key][0]):
-            velocities = adata.uns[cell_transitions_key][i, el].toarray().flatten()
-            thr = n if np.count_nonzero(velocities) > n else np.count_nonzero(velocities)
-            if thr == 0:
-                selected = list()
-            else:
-                selected = list(el[np.argpartition(velocities, kth=-thr)[-thr:]])
-            if len(selected) != n:
-                for _ in range(n - thr):
-                    for idx in el:
+        for i, neighbors in enumerate(adata.obsm['neighbors_{}'.format(neighbors_key)]):
+            velocities = adata.uns[cell_transitions_key][i, neighbors]
+            
+            if issparse(velocities):
+                velocities = velocities.toarray()
+                
+            velocities = velocities.flatten()
+            
+            thr = n_edges if np.count_nonzero(velocities) > n_edges else np.count_nonzero(velocities)
+            
+            selected = list() if thr == 0 else list(neighbors[np.argpartition(velocities, kth=-thr)[-thr:]])
+
+            if len(selected) != n_edges:
+                for _ in range(n_edges - thr):
+                    for idx in neighbors:
                         if idx not in selected:
                             selected.append(idx)
                             break
