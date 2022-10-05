@@ -50,7 +50,7 @@ def weights(adata: anndata.AnnData,
             modalities=None,
             weights_key: str = 'weights',
             n_jobs: int = -1,
-            random_state=None,
+            random_state = None,
             verbose: bool = False,
             copy: bool = False):
     """Multimodal cell-specific weights

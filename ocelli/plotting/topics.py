@@ -82,6 +82,8 @@ def topics(adata: anndata.AnnData,
         
     fig.subplots_adjust(right=0.9)
     cbar_ax = fig.add_axes([0.92, 0.15, 0.02, 0.7])
-    fig.colorbar(im, cax=cbar_ax)
+    cbar = fig.colorbar(im, cax=cbar_ax)
+    cbar.ax.tick_params(labelsize=6, length=0)
+    cbar.outline.set_color('white')
     
     return fig, ax

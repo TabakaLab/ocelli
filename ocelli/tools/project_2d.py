@@ -7,6 +7,7 @@ def project_2d(adata: anndata.AnnData,
                output_key: str = 'projection',
                alpha: int = 0,
                beta: int = 0,
+               random_state = None,
                copy: bool = False):
     """2D projection of 3D embedding
 
@@ -39,6 +40,8 @@ def project_2d(adata: anndata.AnnData,
     beta
         The second of polar coordinates' angles which define a projection
         plane's normal vector. ``alpha`` is the first one. Use degrees, not radians. (default: 0)
+    random_state
+        Pass an :obj:`int` for reproducible results across multiple function calls. (default: :obj:`None`)
     copy
         Return a copy of :class:`anndata.AnnData`. (default: ``False``)
 
@@ -52,11 +55,14 @@ def project_2d(adata: anndata.AnnData,
         When ``copy=True`` is set, a copy of ``adata`` with those fields is returned.
     """
     
+    if random_state is not None:
+        np.random.seed(random_state)
+    
     if alpha % 90 == 0:
-        alpha += 5
+        alpha += 1
 
     if beta % 90 == 0:
-        beta += 5
+        beta += 1
 
     alpha = alpha * ((2 * np.pi) / 360)
     beta = beta * ((2 * np.pi) / 360)
