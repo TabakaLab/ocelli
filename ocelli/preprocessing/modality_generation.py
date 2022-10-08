@@ -9,7 +9,6 @@ import os
 def modality_generation(adata: anndata.AnnData,
                         topic_key: str = 'lda',
                         n_top_vars: int = 100,
-                        top_vars_key: str = 'top_vars',
                         norm_log: bool = True,
                         verbose: bool = False,
                         copy: bool = False):
@@ -41,8 +40,6 @@ def modality_generation(adata: anndata.AnnData,
     n_top_vars
         The maximum number of top variables considered for each topic.
         These are variables with highest LDA component scores. (default: 100)
-    top_vars_key
-        Top topic variables are saved to ``adata.uns[top_vars_key]``. (default: `top_vars`)
     verbose
         Print progress notifications. (default: ``False``)
     copy
@@ -54,7 +51,7 @@ def modality_generation(adata: anndata.AnnData,
         By default (``copy=False``), updates ``adata`` with the following fields:
         ``adata.uns[modalities]`` (:class:`list` with ``adata.obsm`` keys storing generated modalities,
         ``adata.obsm[modality*]`` (:class:`numpy.ndarray` arrays of shape ``(n_obs, n_var)``; ``*`` denotes a topic id),
-        ``adata.uns[top_vars_key]`` (:class:`dict` storing ids of top variables from all topics).
+        ``adata.uns[vars_*]`` (:class:`list` storing modality *'s variable names taken from ``adata.var.index``).
     :class:`anndata.AnnData`
         When ``copy=True`` is set, a copy of ``adata`` with those fields is returned.
     """
@@ -79,8 +76,6 @@ def modality_generation(adata: anndata.AnnData,
     for m in modalities:
         arg_sorted = np.argsort(adata.varm[topic_key][d_topic_assignment[m], m])[-n_top_vars:]
         d_topic_assignment[m] = np.asarray(d_topic_assignment[m])[arg_sorted]
-
-    adata.uns[top_vars_key] = d_topic_assignment
 
     obsm_key = adata.uns['{}_params'.format(topic_key)]['output_key']
     adata.uns['modalities'] = list()
@@ -111,6 +106,7 @@ def modality_generation(adata: anndata.AnnData,
         adata.uns['modalities'].append('modality{}'.format(m))
         if verbose:
             print('Modality {} --> saved to adata.obsm[modality{}].'.format(m, m))
+        adata.uns['vars_{}'.format(m)] = list(np.asarray(adata.var.index)[list(d_topic_assignment[m])])
 
     if verbose:
         print('{} topic-based modalities generated.'.format(len(modalities)))

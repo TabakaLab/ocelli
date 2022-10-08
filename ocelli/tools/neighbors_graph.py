@@ -1,19 +1,19 @@
 import anndata
 import numpy as np
 
-def nn_graph(adata: anndata.AnnData,
-             n_edges: int = 10,
-             neighbors_key: str = 'X_mdm',
-             graph_key: str = 'graph',
-             verbose: bool = False,
-             copy: bool = False):
+def neighbors_graph(adata: anndata.AnnData,
+                    n_edges: int = 10,
+                    neighbors_key: str = 'X_mdm',
+                    graph_key: str = 'graph',      
+                    verbose: bool = False,
+                    copy: bool = False):
     """Nearest neighbors-based graph
 
     From each graph node, ``n_edges`` edges come out. They correspond to respective cell's nearest neighbors.
     
-    Before constructing the graph, you must perform a nearest neighbors search in the Multimodal Diffusion Maps space. 
-    To do so, run ``ocelli.pp.neighbors(adata, modalities=[X_mdm])``,
-    where ``X_mdm`` is a :class:`str`, and ``adata.obsm[X_mdm]`` stores a Multimodal Diffusion Maps embedding.
+    Before constructing the graph, you must perform a nearest neighbors search in the embedding space. 
+    To do so, run ``ocelli.pp.neighbors(adata, modalities=[neighbors_key])``,
+    where ``neighbors_key`` is a :class:`str`, and ``adata.obsm[neighbors_key]`` stores the embedding.
     
     Parameters
     ----------

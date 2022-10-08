@@ -45,8 +45,9 @@ Tools (tl)
 .. autosummary::
    :toctree: .
    
-   tl.nn_graph
-   tl.vel_graph
+   tl.neighbors_graph
+   tl.velocity_graph
+   tl.timestamp_graph
    
 **Plotting tools**
 
