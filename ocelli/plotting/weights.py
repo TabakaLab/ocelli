@@ -49,7 +49,6 @@ def weights(adata: anndata.AnnData,
     
     fig, ax = plt.subplots(nrows=nrows, ncols=ncols)
     fig.supylabel('Modalities', size=6)
-    fig.suptitle('Weights', size=6)
     
     if grouping_key is None:
         for i, m in enumerate(modalities):

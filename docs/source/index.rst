@@ -23,11 +23,9 @@ The source code is avaialable on GitHub_.
    :maxdepth: 1
    :hidden:
    
-   notebooks/tutorials-1
+   notebooks/getting-started
    notebooks/human-bone-marrow
    notebooks/hair-follicle
-   notebooks/binary-tree
-   notebooks/sparse-transitions
    notebooks/pancreas
    notebooks/cell-reprogramming
    
