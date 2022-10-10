@@ -104,17 +104,18 @@ def scatter(adata: anndata.AnnData,
             fig = px.scatter(df, x='x', y='y', color='color', hover_name='color', 
                         hover_data={'x': False, 'y': False, 'color': False})
 
-
             fig.update_layout(scene = dict(
                         xaxis = dict(
-                             backgroundcolor='white',
-                            visible=False, showticklabels=False,
-                             gridcolor="white",
-                             showbackground=True,
-                             zerolinecolor="white",),
+                            backgroundcolor='white',
+                            visible=False, 
+                            showticklabels=False,
+                            gridcolor="white",
+                            showbackground=True,
+                            zerolinecolor="white",),
                         yaxis = dict(
                             backgroundcolor='white',
-                            visible=False, showticklabels=False,
+                            visible=False, 
+                            showticklabels=False,
                             gridcolor="white",
                             showbackground=True,
                             zerolinecolor="white"),),
@@ -135,26 +136,30 @@ def scatter(adata: anndata.AnnData,
 
             fig.update_layout(scene = dict(
                 xaxis = dict(
-                     backgroundcolor='white',
-                    visible=False, showticklabels=False,
-                     gridcolor="white",
-                     showbackground=True,
-                     zerolinecolor="white",),
+                    backgroundcolor='white',
+                    visible=False, 
+                    showticklabels=False,
+                    gridcolor="white",
+                    showbackground=True,
+                    zerolinecolor="white",),
                 yaxis = dict(
                     backgroundcolor='white',
-                    visible=False, showticklabels=False,
+                    visible=False, 
+                    showticklabels=False,
                     gridcolor="white",
                     showbackground=True,
                     zerolinecolor="white"),
                 zaxis = dict(
                     backgroundcolor='white',
-                    visible=False, showticklabels=False,
+                    visible=False, 
+                    showticklabels=False,
                     gridcolor="white",
                     showbackground=True,
                     zerolinecolor="white",),),)
             fig.update_layout({
                 'plot_bgcolor': 'white',
                 'paper_bgcolor': 'white'})
+            
         else:
             raise(ValueError('Visualized embedding must be 2- or 3-dimensional. You passed {} dimensions.'.format(dim)))
 

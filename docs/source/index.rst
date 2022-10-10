@@ -23,6 +23,7 @@ The source code is avaialable on GitHub_.
    :maxdepth: 1
    :hidden:
    
+   notebooks/tutorials-1
    notebooks/human-bone-marrow
    notebooks/hair-follicle
    notebooks/binary-tree

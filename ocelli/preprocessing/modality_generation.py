@@ -51,7 +51,7 @@ def modality_generation(adata: anndata.AnnData,
         By default (``copy=False``), updates ``adata`` with the following fields:
         ``adata.uns[modalities]`` (:class:`list` with ``adata.obsm`` keys storing generated modalities,
         ``adata.obsm[modality*]`` (:class:`numpy.ndarray` arrays of shape ``(n_obs, n_var)``; ``*`` denotes a topic id),
-        ``adata.uns[vars_*]`` (:class:`list` storing modality *'s variable names taken from ``adata.var.index``).
+        ``adata.uns[vars_*]`` (:class:`list` storing modality ``*``'s variable names taken from ``adata.var.index``).
     :class:`anndata.AnnData`
         When ``copy=True`` is set, a copy of ``adata`` with those fields is returned.
     """

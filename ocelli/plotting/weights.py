@@ -47,7 +47,7 @@ def weights(adata: anndata.AnnData,
     
     nrows, ncols = len(modalities), len(groups)
     
-    fig, ax = plt.subplots(nrows=nrows, ncols=ncols, figsize=(ncols*1.2, nrows*0.8))
+    fig, ax = plt.subplots(nrows=nrows, ncols=ncols)
     fig.supylabel('Modalities', size=6)
     fig.suptitle('Weights', size=6)
     
