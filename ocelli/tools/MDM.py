@@ -49,6 +49,7 @@ def MDM(adata: AnnData,
         output_key: str = 'X_mdm',
         unimodal_norm: bool = True,
         eigval_times_eigvec: bool = True,
+        save_mmc: bool = False,
         n_jobs: int = -1,
         random_state = None,
         verbose: bool = False,
@@ -78,6 +79,8 @@ def MDM(adata: AnnData,
     eigval_times_eigvec
         If ``True``, the multimodal diffusion maps embedding is calculated by multiplying
         eigenvectors by eigenvalues. Otherwise, the embedding consists of unmultiplied eigenvectors. (default: ``True``)
+    save_mmc
+        If ``True``, the multimodal Markov chain array is saved to ``adata.uns['mmc']``. (default: ``False``)
     n_jobs
         The number of parallel jobs. If the number is larger than the number of CPUs, it is changed to -1.
         -1 means all processors are used. (default: -1)
@@ -92,7 +95,8 @@ def MDM(adata: AnnData,
     -------
     :obj:`None`
         By default (``copy=False``), updates ``adata`` with the following fields:
-        ``adata.obsm[output_key]`` (:class:`numpy.ndarray`).
+        ``adata.obsm[output_key]`` (:class:`numpy.ndarray`),
+        ``adata.uns['mmc']`` (if ``save_mmc``, :class:`scipy.sparse.csr_matrix`).
     :class:`anndata.AnnData`
         When ``copy=True`` is set, a copy of ``adata`` with those fields is returned.
     """
@@ -137,10 +141,13 @@ def MDM(adata: AnnData,
     diag_vals = np.asarray([1 / val if val != 0 else 1 for val in multiM.sum(axis=1).A1])
     multiM = diags(diag_vals) @ multiM
 
-    multiM = (multiM + multiM.T) / 1
+    multiM = (multiM + multiM.T) / 2
 
     if verbose:
         print('Multimodal Markov chain calculated')
+        
+    if save_mmc:
+        adata.uns['mmc'] = multiM
 
     if random_state is not None:
         np.random.seed(random_state)

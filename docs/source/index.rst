@@ -27,6 +27,5 @@ The source code is avaialable on GitHub_.
    notebooks/human-bone-marrow
    notebooks/hair-follicle
    notebooks/unimodal
-   notebooks/cell-reprogramming
    
 .. _GitHub: https://github.com/TabakaLab/ocelli
