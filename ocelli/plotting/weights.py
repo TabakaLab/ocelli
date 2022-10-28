@@ -8,7 +8,8 @@ def weights(adata: anndata.AnnData,
             grouping_key = None,
             showmeans: bool = False, 
             showmedians: bool = True, 
-            showextrema: bool = False):
+            showextrema: bool = False,
+            fontsize: int = 6):
     """Multimodal weights violin plots
     
     Basic violin plots of multimodal weights. 
@@ -34,6 +35,8 @@ def weights(adata: anndata.AnnData,
         If ``True``, will toggle rendering of the medians. (default: ``True``)
     showextrema
         If ``True``, will toggle rendering of the extrema. (default: ``False``)
+    fontsize
+        Plot fontsize. (default: 6)
 
     Returns
     -------
@@ -48,7 +51,7 @@ def weights(adata: anndata.AnnData,
     nrows, ncols = len(modalities), len(groups)
     
     fig, ax = plt.subplots(nrows=nrows, ncols=ncols)
-    fig.supylabel('Modalities', size=6)
+    fig.supylabel('Modalities', size=fontsize)
     
     if grouping_key is None:
         for i, m in enumerate(modalities):
@@ -56,12 +59,12 @@ def weights(adata: anndata.AnnData,
                              showmeans=showmeans, 
                              showmedians=showmedians, 
                              showextrema=showextrema)
-            ax[i].set_ylabel(m, size=6)
+            ax[i].set_ylabel(m, size=fontsize)
             ax[i].spines['right'].set_visible(False)
             ax[i].spines['top'].set_visible(False)
             ax[i].spines['bottom'].set_visible(False)
             ax[i].set_xticks([])
-            ax[i].tick_params(axis='both', which='major', labelsize=6, length=1)
+            ax[i].tick_params(axis='both', which='major', labelsize=fontsize, length=1)
             ax[i].set_yticks([0, 0.5, 1])
             ax[i].set_yticklabels([0, 0.5, 1])
             ax[i].set_ylim([0,1])
@@ -73,14 +76,14 @@ def weights(adata: anndata.AnnData,
                                     showmedians=showmedians, 
                                     showextrema=showextrema)
                 if i == 0:
-                    ax[i][j].set_title(groups[j], size=6)
+                    ax[i][j].set_title(groups[j], size=fontsize)
                 if j == 0:
-                    ax[i][j].set_ylabel(m, size=6)
+                    ax[i][j].set_ylabel(m, size=fontsize)
                 ax[i][j].spines['right'].set_visible(False)
                 ax[i][j].spines['top'].set_visible(False)
                 ax[i][j].spines['bottom'].set_visible(False)
                 ax[i][j].set_xticks([])
-                ax[i][j].tick_params(axis='both', which='major', labelsize=6, length=1)
+                ax[i][j].tick_params(axis='both', which='major', labelsize=fontsize, length=1)
                 ax[i][j].set_yticks([0, 0.5, 1])
                 if j == 0:
                     ax[i][j].set_yticklabels([0, 0.5, 1])

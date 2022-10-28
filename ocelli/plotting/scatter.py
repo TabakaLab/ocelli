@@ -10,13 +10,17 @@ from matplotlib.lines import Line2D
 def scatter(adata: anndata.AnnData,
             x_key: str,
             color_key = None,
-            static: bool = True,
+            method: bool = 'matplotlib',
             cmap = 'Spectral',
-            marker_size: int = 3):
+            fontsize: int = 6,
+            max_columns: int = 4,
+            marker_size: int = 3,
+            markerscale: float = 1.,
+            legend: bool = True):
     """2D and 3D scatter plots
     
-    Can generate static 2D plots (:class:`matplotlib`) 
-    or interactive 2D and 3D plots (:class:`Plotly`).
+    Static :class:`matplotlib` 2D plots,
+    or interactive :class:`Plotly` 2D or 3D plots.
     
     Returns :class:`matplotlib` or :class:`Plotly` figures,
     that can be further customized, or saved.
@@ -28,17 +32,27 @@ def scatter(adata: anndata.AnnData,
     x_key
         ``adata.obsm`` key storing a 2D or 3D embedding for plotting.
     color_key
-        ``adata.obs[color_key]`` stores a discrete or continous information used 
-        for coloring the plot. (default: :obj:`None`)
-    static
-        If ``True``, a plot will be static (available only for 2D). 
-        Otherwise, plot will be interactive (2D or 3D). (default: ``True``)
+        A key of ``adata.obs`` or ``adata.obsm`` with plot coloring information. 
+        (default: :obj:`None`)
+    method
+        Valid options: ``matplotlib``, ``pyplot``.
+        ``matplotlib`` generates static 2D plots.
+        ``plotly`` generates 2D or 3D interactive plots. (default: ``matplotlib``)
     cmap
-        Used only in ``static`` mode. Can be a name (:class:`str`) 
+        Used only when ``method = matplotlib``. Can be a name (:class:`str`) 
         of a built-in :class:`matplotlib` colormap, 
         or a custom colormap object. (default: ``Spectral``)
+    fontsize
+        Plot fontsize. (default: 6)
+    max_columns
+        A maximum number of columns for a plot. Must be greater than 2. (default: 4)
     marker_size
         Size of scatter plot markers. (default: 3)
+    markerscale
+        Scales marker size in a discrete legend. (default: 1.)
+    legend
+        If ``True``, show legend. (default: ``True``)
+        
     Returns
     -------
     :class:`plotly.graph_objs._figure.Figure`
@@ -47,123 +61,244 @@ def scatter(adata: anndata.AnnData,
         :class:`matplotlib.figure.Figure` and :class:`numpy.ndarray` 
         storing :class:`matplotlib` figure and axes if ``static = True``.
     """
-    
+        
     if x_key not in list(adata.obsm.keys()):
-        raise(NameError('No embedding found to visualize.'))
+        raise(NameError('No embedding found to visualize in adata.obsm["{}"].'.format(x_key)))
         
-    colors_found = False
-    if color_key in list(adata.obs.keys()):
-        colors_found = True
+    if max_columns < 2:
+        raise(ValueError('max_columns must be > 1.'))
         
-    dim = adata.obsm[x_key].shape[1]
+    colors_obs = True if color_key in list(adata.obs.keys()) else False
+    colors_obsm = True if color_key in list(adata.obsm.keys()) else False
+    
+    if colors_obs and colors_obsm:
+        raise(NameError('Found adata.obs["{}"] and adata.obsm["{}"]. Please make keys unique and select the one you meant.'.format(color_key, color_key)))
         
-    if static:
-        if dim == 2:
-            if type(cmap) == str:
-                cmap = mpl.cm.get_cmap(cmap)
-
+    n_dim = adata.obsm[x_key].shape[1]
+        
+    if method == 'matplotlib':
+        if n_dim == 2:
+            cmap = mpl.cm.get_cmap(cmap) if type(cmap) == str else cmap
+            
+            n_plots = 1 if (colors_obs or not (colors_obs or colors_obsm)) else adata.obsm[color_key].shape[1]
+            n_rows = n_plots // max_columns if n_plots % max_columns == 0 else n_plots // max_columns + 1
+            n_columns = max_columns if n_plots > max_columns else n_plots
+            
             df = pd.DataFrame(adata.obsm[x_key], columns=['x', 'y'])
-            if colors_found:
-                df['color'] = list(adata.obs[color_key])
+            
+            if colors_obs:
+                color_names = [color_key]
+                df[color_key] = list(adata.obs[color_key])
+                
+            elif colors_obsm:
+                if isinstance(adata.obsm[color_key], pd.DataFrame):
+                    color_names = adata.obsm[color_key].columns
+                    for name in color_names:
+                        df[name] = list(adata.obsm[color_key][name])
+                else:
+                    color_names = [i for i in range(n_plots)]
+                    for i in range(n_plots):
+                        df[i] = ist(adata.obsm[color_key][:, i])
             else:
-                df['color'] = ['Undefined' for _ in range(adata.obsm[x_key].shape[0])]
+                color_names = ['color']
+                df['color'] = ['Undefined' for _ in range(adata.shape[0])]
+            
             df = df.sample(frac=1)
-            fig, ax = plt.subplots(1)
-            ax.set_aspect('equal')
-            try:
-                ax.scatter(x=df['x'], y=df['y'], s=marker_size, c=df['color'], cmap=cmap, edgecolor='none')
-                scalarmappaple = mpl.cm.ScalarMappable(norm=mpl.colors.Normalize(vmin=min(df['color']), vmax=max(df['color'])), cmap=cmap)
-                scalarmappaple.set_array(256)
-                cbar = plt.colorbar(scalarmappaple)
-                cbar.ax.tick_params(labelsize=6, length=0)
-                cbar.outline.set_color('white')
-                plt.axis('off')
-            except ValueError:
-                types = np.unique(df['color'])
-                d = {t: i for i, t in enumerate(types)}
-                df['c'] = [cmap(d[el]/(len(d.keys()))) for el in df['color']]
-                ax.scatter(x=df['x'], y=df['y'], s=marker_size, c=df['c'], edgecolor='none')
-                plt.axis('off')
-                patches = [Line2D(range(1), range(1), color="white", marker='o', 
-                          markerfacecolor=cmap(d[t]/(len(d.keys()))), label=t) for t in d]
-                plt.legend(handles=patches, fontsize=4, borderpad=0, frameon=False, markerscale=0.7)
+            
+            fig, ax = plt.subplots(n_rows, n_columns)
+            
+            for i in range(n_rows * n_columns):
+                row, col = i // n_columns, i % n_columns
+                
+                if n_plots == 1:
+                    ax.axis('off')
+                    ax.set_aspect('equal')
+                elif n_rows == 1:
+                    ax[col].axis('off')
+                    ax[col].set_aspect('equal')
+                else:
+                    ax[row][col].axis('off')
+                    ax[row][col].set_aspect('equal')
+                
+                if i < n_plots:
+                    
+                    try:
+                        if n_plots == 1:
+                            scatter = ax.scatter(x=df['x'],
+                                                 y=df['y'], 
+                                                 s=marker_size, 
+                                                 c=df[color_names[i]], 
+                                                 cmap=cmap, 
+                                                 edgecolor='none')
+                        elif n_rows == 1:
+                            scatter = ax[col].scatter(x=df['x'],
+                                                      y=df['y'], 
+                                                      s=marker_size, 
+                                                      c=df[color_names[i]], 
+                                                      cmap=cmap, 
+                                                      edgecolor='none')
+                        else:
+                            scatter = ax[row][col].scatter(x=df['x'],
+                                                           y=df['y'], 
+                                                           s=marker_size, 
+                                                           c=df[color_names[i]], 
+                                                           cmap=cmap, 
+                                                           edgecolor='none')
+                            
+                        scalarmappaple = mpl.cm.ScalarMappable(
+                            norm=mpl.colors.Normalize(vmin=np.percentile(df[color_names[i]], 1), 
+                                                      vmax=np.percentile(df[color_names[i]], 99)), 
+                            cmap=cmap)
+                        
+                        if legend:
+                            if n_plots == 1:
+                                ax.set_title(color_names[i], fontsize=fontsize)
+                                cbar = fig.colorbar(scatter, ax=ax, fraction=0.04)
+                            elif n_rows == 1:
+                                ax[col].set_title(color_names[i], fontsize=fontsize)
+                                cbar = fig.colorbar(scatter, ax=ax[col], fraction=0.04)
+                            else:
+                                ax[row][col].set_title(color_names[i], fontsize=fontsize)
+                                cbar = fig.colorbar(scatter, ax=ax[row][col], fraction=0.04)
+
+                            cbar.ax.tick_params(labelsize=fontsize, length=0)
+                            cbar.outline.set_color('white')
+                    
+                    except ValueError:
+                        types = np.unique(df[color_names[i]])
+                        d = {t: i for i, t in enumerate(types)}
+                        df['c'] = [cmap(d[el]/(len(d.keys()))) for el in df[color_names[i]]]
+                        
+                        patches = [Line2D(range(1), range(1), color="white", marker='o', 
+                                          markerfacecolor=cmap(d[t]/(len(d.keys()))), label=t) for t in d]
+                        
+                        if n_plots == 1:
+                            ax.scatter(x=df['x'],
+                                       y=df['y'],
+                                       s=marker_size, 
+                                       c=df['c'], 
+                                       edgecolor='none')
+                            if legend:
+                                ax.legend(handles=patches, 
+                                          fontsize=fontsize, 
+                                          borderpad=0, 
+                                          frameon=False, 
+                                          markerscale=markerscale)
+
+                        elif n_rows == 1:
+                            ax[col].scatter(x=df['x'],
+                                            y=df['y'],
+                                            s=marker_size, 
+                                            c=df['c'], 
+                                            edgecolor='none')
+                            if legend:
+                                ax[col].legend(handles=patches, 
+                                               fontsize=fontsize, 
+                                               borderpad=0, 
+                                               frameon=False, 
+                                               markerscale=markerscale)
+                        else:
+                            ax[row][col].scatter(x=df['x'],
+                                                 y=df['y'],
+                                                 s=marker_size, 
+                                                 c=df['c'], 
+                                                 edgecolor='none')
+                            if legend:
+                                ax[row][col].legend(handles=patches, 
+                                                    fontsize=fontsize, 
+                                                    borderpad=0, 
+                                                    frameon=False, 
+                                                    markerscale=markerscale)
+                        
             return fig, ax
-        elif dim == 3:
-            raise(ValueError('Visualized embedding must be 2-dimensional. You passed {} dimensions. Set static = False.'.format(dim)))
+            
         else:
-            raise(ValueError('Visualized embedding must be 2-dimensional. You passed {} dimensions.'.format(dim)))
-    else:
-        if dim == 2:
+            raise(ValueError('When method="matplotlib", visualized embedding must be 2D. adata.obsm["{}"] is {}D.'.format(x_key, n_dim)))
+                
+    elif method == 'plotly':
+        if colors_obsm:
+            raise(NameError('When method="plotly", color_key best be a adata.obs key. You passed adata.obsm key.'))
+        
+        if n_dim == 2:
+            
             df = pd.DataFrame(adata.obsm[x_key], columns=['x', 'y'])
-            if colors_found:
-                df['color'] = list(adata.obs[color_key])
-            else:
-                df['color'] = ['Undefined' for _ in range(adata.obsm[x_key].shape[0])]
+            df['color'] = list(adata.obs[color_key]) if colors_obs else ['Undefined' for _ in range(adata.shape[0])]
             df = df.sample(frac=1)
 
-            fig = px.scatter(df, x='x', y='y', color='color', hover_name='color', 
-                        hover_data={'x': False, 'y': False, 'color': False})
-
-            fig.update_layout(scene = dict(
-                        xaxis = dict(
-                            backgroundcolor='white',
-                            visible=False, 
-                            showticklabels=False,
-                            gridcolor="white",
-                            showbackground=True,
-                            zerolinecolor="white",),
-                        yaxis = dict(
-                            backgroundcolor='white',
-                            visible=False, 
-                            showticklabels=False,
-                            gridcolor="white",
-                            showbackground=True,
-                            zerolinecolor="white"),),
-                      )
-            fig.update_layout({
-                'plot_bgcolor': 'white',
-                'paper_bgcolor': 'white'})
-        elif dim == 3:
-            df = pd.DataFrame(adata.obsm[x_key], columns=['x', 'y', 'z'])
-            if colors_found:
-                df['color'] = list(adata.obs[color_key])
-            else:
-                df['color'] = ['Undefined' for _ in range(adata.obsm[x_key].shape[0])]
-            df = df.sample(frac=1)
-
-            fig = px.scatter_3d(df, x='x', y='y', z='z', color='color', hover_name='color', 
-                        hover_data={'x': False, 'y': False, 'z': False, 'color': False})
+            fig = px.scatter(df, 
+                             x='x',
+                             y='y', 
+                             color='color', 
+                             hover_name='color', 
+                             hover_data={'x': False, 'y': False, 'color': False})
 
             fig.update_layout(scene = dict(
                 xaxis = dict(
                     backgroundcolor='white',
                     visible=False, 
                     showticklabels=False,
-                    gridcolor="white",
+                    gridcolor='white',
                     showbackground=True,
-                    zerolinecolor="white",),
+                    zerolinecolor='white'),
                 yaxis = dict(
                     backgroundcolor='white',
                     visible=False, 
                     showticklabels=False,
-                    gridcolor="white",
+                    gridcolor='white',
                     showbackground=True,
-                    zerolinecolor="white"),
+                    zerolinecolor='white')))
+            
+            fig.update_layout({
+                'plot_bgcolor': 'white',
+                'paper_bgcolor': 'white'})
+            
+        elif n_dim == 3:
+            
+            df = pd.DataFrame(adata.obsm[x_key], columns=['x', 'y', 'z'])
+            df['color'] = list(adata.obs[color_key]) if colors_obs else ['Undefined' for _ in range(adata.shape[0])]
+            df = df.sample(frac=1)
+
+            fig = px.scatter_3d(df, 
+                                x='x', 
+                                y='y',
+                                z='z', 
+                                color='color', 
+                                hover_name='color', 
+                                hover_data={'x': False, 'y': False, 'z': False, 'color': False})
+
+            fig.update_layout(scene = dict(
+                xaxis = dict(
+                    backgroundcolor='white',
+                    visible=False, 
+                    showticklabels=False,
+                    gridcolor='white',
+                    showbackground=True,
+                    zerolinecolor='white'),
+                yaxis = dict(
+                    backgroundcolor='white',
+                    visible=False, 
+                    showticklabels=False,
+                    gridcolor='white',
+                    showbackground=True,
+                    zerolinecolor='white'),
                 zaxis = dict(
                     backgroundcolor='white',
                     visible=False, 
                     showticklabels=False,
-                    gridcolor="white",
+                    gridcolor='white',
                     showbackground=True,
-                    zerolinecolor="white",),),)
+                    zerolinecolor='white')))
+            
             fig.update_layout({
                 'plot_bgcolor': 'white',
                 'paper_bgcolor': 'white'})
             
         else:
-            raise(ValueError('Visualized embedding must be 2- or 3-dimensional. You passed {} dimensions.'.format(dim)))
+            raise(ValueError('When method="plotly", visualized embedding must be 2D or 3D. adata.obsm["{}"] is {}D.'.format(x_key, n_dim)))
 
         fig.update_traces(marker=dict(size=marker_size), selector=dict(mode='markers'))
-        fig.update_layout(legend= {'itemsizing': 'constant'})
+        fig.update_layout(legend={'itemsizing': 'constant'})
 
         return fig
+    else:
+        raise(NameError('Valid plotting methods: matplotlib, plotly. You passed {}.'.format(method)))
