@@ -74,4 +74,3 @@ Plotting (pl)
    
    pl.scatter
    pl.weights
-   pl.topics

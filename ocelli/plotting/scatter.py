@@ -16,6 +16,8 @@ def scatter(adata: anndata.AnnData,
             max_columns: int = 4,
             marker_size: int = 3,
             markerscale: float = 1.,
+            vmin = None,
+            vmax = None,
             legend: bool = True):
     """2D and 3D scatter plots
     
@@ -50,6 +52,10 @@ def scatter(adata: anndata.AnnData,
         Size of scatter plot markers. (default: 3)
     markerscale
         Scales marker size in a discrete legend. (default: 1.)
+    vmin
+        Used only when ``method = matplotlib``. Lower bound of legend colorbar. (default: ``None``)
+    vmax
+        Used only when ``method = matplotlib``. Upper bound of legend colorbar. (default: ``None``)
     legend
         If ``True``, show legend. (default: ``True``)
         
@@ -98,7 +104,7 @@ def scatter(adata: anndata.AnnData,
                 else:
                     color_names = [i for i in range(n_plots)]
                     for i in range(n_plots):
-                        df[i] = ist(adata.obsm[color_key][:, i])
+                        df[i] = list(adata.obsm[color_key][:, i])
             else:
                 color_names = ['color']
                 df['color'] = ['Undefined' for _ in range(adata.shape[0])]
@@ -121,33 +127,44 @@ def scatter(adata: anndata.AnnData,
                     ax[row][col].set_aspect('equal')
                 
                 if i < n_plots:
+                    is_discrete = False
+                    for el in df[color_names[i]]:
+                        if type(el) is str: 
+                            is_discrete = True
+                            break
                     
-                    try:
+                    if not is_discrete: 
                         if n_plots == 1:
                             scatter = ax.scatter(x=df['x'],
                                                  y=df['y'], 
                                                  s=marker_size, 
                                                  c=df[color_names[i]], 
                                                  cmap=cmap, 
-                                                 edgecolor='none')
+                                                 edgecolor='none',
+                                                 vmin=np.percentile(df[color_names[i]], 1) if vmin is None else vmin, 
+                                                 vmax=np.percentile(df[color_names[i]], 99) if vmax is None else vmax)
                         elif n_rows == 1:
                             scatter = ax[col].scatter(x=df['x'],
                                                       y=df['y'], 
                                                       s=marker_size, 
                                                       c=df[color_names[i]], 
                                                       cmap=cmap, 
-                                                      edgecolor='none')
+                                                      edgecolor='none',
+                                                      vmin=np.percentile(df[color_names[i]], 1) if vmin is None else vmin, 
+                                                      vmax=np.percentile(df[color_names[i]], 99) if vmax is None else vmax)
                         else:
                             scatter = ax[row][col].scatter(x=df['x'],
                                                            y=df['y'], 
                                                            s=marker_size, 
                                                            c=df[color_names[i]], 
                                                            cmap=cmap, 
-                                                           edgecolor='none')
+                                                           edgecolor='none',
+                                                           vmin=np.percentile(df[color_names[i]], 1) if vmin is None else vmin, 
+                                                           vmax=np.percentile(df[color_names[i]], 99) if vmax is None else vmax)
                             
                         scalarmappaple = mpl.cm.ScalarMappable(
-                            norm=mpl.colors.Normalize(vmin=np.percentile(df[color_names[i]], 1), 
-                                                      vmax=np.percentile(df[color_names[i]], 99)), 
+                            norm=mpl.colors.Normalize(vmin=np.percentile(df[color_names[i]], 1) if vmin is None else vmin, 
+                                                      vmax=np.percentile(df[color_names[i]], 99) if vmax is None else vmax), 
                             cmap=cmap)
                         
                         if legend:
@@ -164,7 +181,7 @@ def scatter(adata: anndata.AnnData,
                             cbar.ax.tick_params(labelsize=fontsize, length=0)
                             cbar.outline.set_color('white')
                     
-                    except ValueError:
+                    else:
                         types = np.unique(df[color_names[i]])
                         d = {t: i for i, t in enumerate(types)}
                         df['c'] = [cmap(d[el]/(len(d.keys()))) for el in df[color_names[i]]]

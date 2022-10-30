@@ -12,7 +12,7 @@ def LDA(adata: anndata.AnnData,
         learning_method: str = 'batch',
         learning_decay: float = 0.7,
         learning_offset: float = 10.0,
-        max_iter: int = 20,
+        max_iter: int = 30,
         batch_size: int = 128,
         evaluate_every: int = -1,
         total_samples: int = 1000000,
@@ -68,7 +68,7 @@ def LDA(adata: anndata.AnnData,
         A (positive) parameter that downweights early iterations in online learning.
         It should be greater than 1.0. In the literature, this is called tau_0. (default: 10.)
     max_iter
-        The maximum number of passes over the training data (aka epochs). (default: 20)
+        The maximum number of passes over the training data (aka epochs). (default: 30)
     batch_size
         Number of documents to use in each EM iteration. Only used in online learning. (default: 128)
     evaluate_every

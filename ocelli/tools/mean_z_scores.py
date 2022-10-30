@@ -83,5 +83,8 @@ def mean_z_scores(adata: AnnData,
     output = scale(output, vmin, vmax)
 
     adata.obs[output_key] = np.mean(output, axis=0)
+    
+    if ray.is_initialized():
+        ray.shutdown()
 
     return adata if copy else None

@@ -141,7 +141,7 @@ def MDM(adata: AnnData,
     diag_vals = np.asarray([1 / val if val != 0 else 1 for val in multiM.sum(axis=1).A1])
     multiM = diags(diag_vals) @ multiM
             
-    multiM = (multiM + multiM.T) / 2
+    multiM = multiM + multiM.T
 
     if verbose:
         print('Multimodal Markov chain calculated')
