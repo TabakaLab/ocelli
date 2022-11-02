@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import anndata
 from scipy.sparse import issparse
 import scanpy as scp
@@ -10,15 +11,15 @@ def modality_generation(adata: anndata.AnnData,
                         topic_key: str = 'lda',
                         n_top_vars: int = 100,
                         norm_log: bool = True,
+                        lda_weights_key: str = 'lda_weights',
                         verbose: bool = False,
                         copy: bool = False):
     """Modality generation for unimodal data
 
-    Modalities can be generated automatically using topic modeling components,
-    which are stored in ``adata.varm[topic_key]`` in an array of shape
-    ``(n_vars, n_topics)``.
+    Automatic modality generation using topic modeling components stored 
+    in ``adata.varm[topic_key]`` (an array of shape ``(n_vars, n_topics)``).
 
-    Firstly, variables (e.g. genes) are grouped into topics based
+    Firstly, features (e.g. genes) are grouped into topics based
     on the highest scores in the LDA components array.
     For example, a gene with scores ``[0.5, 0.25, 0.25]`` will be assigned to the first topic.
     Next, variables are filtered - only ``n_top_vars`` variables with the highest scores in each topic are saved.
@@ -40,6 +41,12 @@ def modality_generation(adata: anndata.AnnData,
     n_top_vars
         The maximum number of top variables considered for each topic.
         These are variables with highest LDA component scores. (default: 100)
+    norm_log
+        If ``True``, generated modalities are normalized and logarithmized. (default: ``True``)
+    lda_weights_key
+        ``adata.obsm[lda_weights_key]`` will store ``adata.obsm[topic_key]`` 
+        columns for which modalities were generated.
+        Matrix is row-normalized so that each row sums to 1. (default: `lda_weights`)
     verbose
         Print progress notifications. (default: ``False``)
     copy
@@ -51,7 +58,8 @@ def modality_generation(adata: anndata.AnnData,
         By default (``copy=False``), updates ``adata`` with the following fields:
         ``adata.uns[modalities]`` (:class:`list` with ``adata.obsm`` keys storing generated modalities,
         ``adata.obsm[modality*]`` (:class:`numpy.ndarray` arrays of shape ``(n_obs, n_var)``; ``*`` denotes a topic id),
-        ``adata.uns[vars_*]`` (:class:`list` storing modality ``*``'s variable names taken from ``adata.var.index``).
+        ``adata.uns[vars_*]`` (:class:`list` storing modality ``*``'s variable names taken from ``adata.var.index``),
+        ``adata.obsm[lda_weights_key]`` (row-normalized :class:`pandas.DataFrame`).
     :class:`anndata.AnnData`
         When ``copy=True`` is set, a copy of ``adata`` with those fields is returned.
     """
@@ -72,6 +80,10 @@ def modality_generation(adata: anndata.AnnData,
             d_topic_assignment[t] = [i]
             
     modalities = np.unique(list(d_topic_assignment.keys()))
+    
+    adata.obsm['lda_weights'] = pd.DataFrame(adata.obsm[topic_key][:, modalities]/adata.obsm[topic_key][:, modalities].sum(axis=1)[:,None],
+                                             index=adata.obs.index, 
+                                             columns=['modality{}'.format(m) for m in modalities])
     
     for m in modalities:
         arg_sorted = np.argsort(adata.varm[topic_key][d_topic_assignment[m], m])[-n_top_vars:]
@@ -105,7 +117,7 @@ def modality_generation(adata: anndata.AnnData,
         adata.obsm['modality{}'.format(m)] = v
         adata.uns['modalities'].append('modality{}'.format(m))
         if verbose:
-            print('Modality {} --> saved to adata.obsm[modality{}].'.format(m, m))
+            print('[modality{}]\tModality generated.'.format(m))
         adata.uns['vars_{}'.format(m)] = list(np.asarray(adata.var.index)[list(d_topic_assignment[m])])
 
     if verbose:

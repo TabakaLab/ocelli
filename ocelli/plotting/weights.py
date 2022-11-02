@@ -37,14 +37,13 @@ def weights(adata: anndata.AnnData,
         If ``True``, will toggle rendering of the extrema. (default: ``False``)
     fontsize
         Plot fontsize. (default: 6)
-
     Returns
     -------
     :class:`tuple`
         :class:`matplotlib.figure.Figure` and :class:`numpy.ndarray` storing :class:`matplotlib` figure and axes.
     """
     
-    modalities = list(adata.obsm['weights'].columns)
+    modalities = list(adata.obsm[weights_key].columns)
     
     groups = ['none'] if grouping_key is None else list(np.unique(adata.obs[grouping_key]))
     
@@ -55,7 +54,7 @@ def weights(adata: anndata.AnnData,
     
     if grouping_key is None:
         for i, m in enumerate(modalities):
-            ax[i].violinplot(adata.obsm['weights'][m], 
+            ax[i].violinplot(adata.obsm[weights_key][m], 
                              showmeans=showmeans, 
                              showmedians=showmedians, 
                              showextrema=showextrema)

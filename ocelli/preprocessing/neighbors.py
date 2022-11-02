@@ -117,6 +117,6 @@ def neighbors(adata: anndata.AnnData,
             raise(NameError('Wrong nearest neighbor search method. Valid options: sklearn, nmslib.'))
             
         if verbose:
-                print('[{}] {} nearest neighbors calculated.'.format(m, n_neighbors))
+                print('[{}]\t{} nearest neighbors calculated.'.format(m, n_neighbors))
     
     return adata if copy else None

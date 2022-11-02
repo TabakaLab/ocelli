@@ -136,7 +136,7 @@ def MDM(adata: AnnData,
             multiM += uniM
 
         if verbose:
-            print('[{}] Unimodal Markov chain calculated'.format(m))
+            print('[{}]\tUnimodal Markov chain calculated.'.format(m))
             
     diag_vals = np.asarray([1 / val if val != 0 else 1 for val in multiM.sum(axis=1).A1])
     multiM = diags(diag_vals) @ multiM
@@ -144,7 +144,7 @@ def MDM(adata: AnnData,
     multiM = multiM + multiM.T
 
     if verbose:
-        print('Multimodal Markov chain calculated')
+        print('Multimodal Markov chain calculated.')
         
     if save_mmc:
         adata.uns['mmc'] = multiM
