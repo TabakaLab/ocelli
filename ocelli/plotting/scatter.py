@@ -14,7 +14,7 @@ def scatter(adata: anndata.AnnData,
             cmap = 'Spectral',
             fontsize: int = 6,
             max_columns: int = 4,
-            marker_size: int = 3,
+            marker_size: float = 3.,
             markerscale: float = 1.,
             vmin = None,
             vmax = None,
@@ -49,7 +49,7 @@ def scatter(adata: anndata.AnnData,
     max_columns
         A maximum number of columns for a plot. Must be greater than 2. (default: 4)
     marker_size
-        Size of scatter plot markers. (default: 3)
+        Size of scatter plot markers. (default: 3.)
     markerscale
         Scales marker size in a discrete legend. (default: 1.)
     vmin

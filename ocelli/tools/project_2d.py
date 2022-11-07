@@ -3,13 +3,13 @@ import numpy as np
 
 
 def project_2d(adata: anndata.AnnData,
-               x3d_key: str,
+               x_key: str,
                output_key: str = 'projection',
                alpha: int = 0,
                beta: int = 0,
                random_state = None,
                copy: bool = False):
-    """2D projection of 3D embedding
+    """2D projection of 3D data
 
     Projecting 3D embedding onto a 2D plane may result
     in a better visualization when compared to generating a 2D plot.
@@ -30,8 +30,8 @@ def project_2d(adata: anndata.AnnData,
     ----------
     adata
         The annotated data matrix.
-    x3d_key
-        ``adata.obsm[x3d_key]`` stores a 3D embedding to be projected onto a plane.
+    x_key
+        ``adata.obsm[x_key]`` stores a 3D embedding to be projected onto a plane.
     output_key
         A 2D projection is saved to ``adata.obsm[output_key]``. (default: ``projection``)
     alpha
@@ -69,7 +69,7 @@ def project_2d(adata: anndata.AnnData,
 
     n = np.asarray([np.cos(alpha)*np.cos(beta), np.cos(alpha)*np.sin(beta), np.sin(alpha)])
 
-    plane_3d = np.asarray([x - (n*np.dot(n, x)) for x in adata.obsm[x3d_key]])
+    plane_3d = np.asarray([x - (n*np.dot(n, x)) for x in adata.obsm[x_key]])
 
     v1 = plane_3d[0]
     v1 = v1 / np.linalg.norm(v1)
