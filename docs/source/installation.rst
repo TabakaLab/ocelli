@@ -6,12 +6,12 @@ Ocelli was written for Python 3.7.
 Dependencies
 ^^^^^^^^^^^^
 
-ForceAtlas2 requires the Java Development Kit. On Linux you can download and install it by running::
+ForceAtlas2 requires the Java Development Kit. On Linux, download it and install by running::
 
     sudo apt update
     sudo apt install default-jdk
     
-For maximum performance of approximated nearest neighbors search using ``nmslib``, install it from sources::
+For maximum performance of ``nmslib``'s approximated nearest neighbors search, install the package from sources::
 
     pip install --no-binary :all: nmslib
 

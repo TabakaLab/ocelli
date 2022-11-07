@@ -1,11 +1,12 @@
 Ocelli
 ==================================
 
-**Ocelli** is a computational tool for the visualization of multimodal single-cell developmental data. It includes a novel Multimodal Diffusion Maps algorithm for embedding multimodal datasets into low-dimensional latent spaces.
+**Ocelli** is a computational tool for visualizing multimodal single-cell developmental data. It includes a novel Multimodal Diffusion Maps algorithm for embedding multimodal datasets into low-dimensional latent spaces.
 
-.. image:: images/mvdm.png
+.. image:: images/human-bone-marrow.png
+.. image:: images/hair-follicle.png
 
-The source code is avaialable on GitHub_.
+The source code is available on GitHub_.
 
 *Ocelli (singular Ocellus, Latin: little eye) – simple eyes found in many insects in triplets. Their function is to navigate insects during the day or to detect movement.*
 
@@ -15,7 +16,7 @@ The source code is avaialable on GitHub_.
    :hidden:
 
    installation
-   usage
+   usage_principles
    api
    
 .. toctree::
