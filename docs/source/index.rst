@@ -3,6 +3,7 @@ Ocelli
 
 **Ocelli** is a computational tool for visualizing multimodal single-cell developmental data. It includes a novel Multimodal Diffusion Maps algorithm for embedding multimodal datasets into low-dimensional latent spaces.
 
+.. image:: images/simulated-data.png
 .. image:: images/human-bone-marrow.png
 .. image:: images/hair-follicle.png
 
