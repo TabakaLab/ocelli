@@ -37,7 +37,7 @@ def scatter(adata: anndata.AnnData,
         A key of ``adata.obs`` or ``adata.obsm`` with plot coloring information. 
         (default: :obj:`None`)
     method
-        Valid options: ``matplotlib``, ``pyplot``.
+        Valid options: ``matplotlib``, ``plotly``.
         ``matplotlib`` generates static 2D plots.
         ``plotly`` generates 2D or 3D interactive plots. (default: ``matplotlib``)
     cmap

@@ -74,4 +74,5 @@ Plotting (pl)
    
    pl.scatter
    pl.weights
+   pl.weights_per_cluster
    pl.perspectives

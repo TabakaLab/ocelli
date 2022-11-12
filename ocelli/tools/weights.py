@@ -129,7 +129,7 @@ def weights(adata: anndata.AnnData,
     adata.obsm[weights_key] = pd.DataFrame(weights, index=list(adata.obs.index), columns=modality_names)
 
     if verbose:
-        print('Multimodal cell-specific weights estimated.')
+        print('Multimodal weights estimated.')
 
     if ray.is_initialized():
         ray.shutdown()
