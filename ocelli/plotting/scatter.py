@@ -18,6 +18,7 @@ def scatter(adata: anndata.AnnData,
             markerscale: float = 1.,
             vmin = None,
             vmax = None,
+            axes_visible: bool = False,
             legend: bool = True):
     """2D and 3D scatter plots
     
@@ -59,6 +60,8 @@ def scatter(adata: anndata.AnnData,
         Lower bound of legend colorbar. If `method=plotly`, you must also specify `vmax` value. (default: ``None``)
     vmax
         Upper bound of legend colorbar. If `method=plotly`, you must also specify `vmin` value. (default: ``None``)
+    axes_visible
+        Make axes visible. (default: ``False``)
     legend
         Applicable if `method=matplotlib`. If ``True``, show legend. (default: ``True``)
         
@@ -121,13 +124,16 @@ def scatter(adata: anndata.AnnData,
                 row, col = i // n_columns, i % n_columns
                 
                 if n_plots == 1:
-                    ax.axis('off')
+                    if not axes_visible:
+                        ax.axis('off')
                     ax.set_aspect('equal')
                 elif n_rows == 1:
-                    ax[col].axis('off')
+                    if not axes_visible:
+                        ax[col].axis('off')
                     ax[col].set_aspect('equal')
                 else:
-                    ax[row][col].axis('off')
+                    if not axes_visible:
+                        ax[row][col].axis('off')
                     ax[row][col].set_aspect('equal')
                 
                 if i < n_plots:
@@ -259,16 +265,16 @@ def scatter(adata: anndata.AnnData,
             fig.update_layout(scene = dict(
                 xaxis = dict(
                     backgroundcolor='white',
-                    visible=False, 
-                    showticklabels=False,
-                    gridcolor='white',
+                    visible=axes_visible, 
+                    showticklabels=axes_visible,
+                    gridcolor='#bcbcbc',
                     showbackground=True,
                     zerolinecolor='white'),
                 yaxis = dict(
                     backgroundcolor='white',
-                    visible=False, 
-                    showticklabels=False,
-                    gridcolor='white',
+                    visible=axes_visible, 
+                    showticklabels=axes_visible,
+                    gridcolor='#bcbcbc',
                     showbackground=True,
                     zerolinecolor='white')))
             
@@ -296,23 +302,23 @@ def scatter(adata: anndata.AnnData,
             fig.update_layout(scene = dict(
                 xaxis = dict(
                     backgroundcolor='white',
-                    visible=False, 
-                    showticklabels=False,
-                    gridcolor='white',
+                    visible=axes_visible, 
+                    showticklabels=axes_visible,
+                    gridcolor='#bcbcbc',
                     showbackground=True,
                     zerolinecolor='white'),
                 yaxis = dict(
                     backgroundcolor='white',
-                    visible=False, 
-                    showticklabels=False,
-                    gridcolor='white',
+                    visible=axes_visible, 
+                    showticklabels=axes_visible,
+                    gridcolor='#bcbcbc',
                     showbackground=True,
                     zerolinecolor='white'),
                 zaxis = dict(
                     backgroundcolor='white',
-                    visible=False, 
-                    showticklabels=False,
-                    gridcolor='white',
+                    visible=axes_visible, 
+                    showticklabels=axes_visible,
+                    gridcolor='#bcbcbc',
                     showbackground=True,
                     zerolinecolor='white')))
             
