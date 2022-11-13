@@ -20,7 +20,9 @@ setup(
                       'sphinx>=1.4',
                       'umap-learn>=0.5.3',
                       'ipykernel',
-                      'nbsphinx'],
+                      'nbsphinx', 
+                      'scanpy',
+                      'louvain'],
     
     author='Piotr Rutkowski',
     author_email='prutkowski@ichf.edu.pl',

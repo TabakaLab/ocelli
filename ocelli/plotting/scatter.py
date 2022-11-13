@@ -11,7 +11,7 @@ def scatter(adata: anndata.AnnData,
             x_key: str,
             color_key = None,
             method: bool = 'matplotlib',
-            cmap = 'Spectral',
+            cmap = None,
             fontsize: int = 6,
             max_columns: int = 4,
             marker_size: float = 3.,
@@ -32,32 +32,35 @@ def scatter(adata: anndata.AnnData,
     adata
         The annotated data matrix.
     x_key
-        ``adata.obsm`` key storing a 2D or 3D embedding for plotting.
+        `adata.obsm` key storing a 2D or 3D embedding for plotting.
     color_key
-        A key of ``adata.obs`` or ``adata.obsm`` with plot coloring information. 
+        A key of `adata.obs` or `adata.obsm` with plot coloring information.
+        If `method=plotly`, only `adata.obs` keys are valid.
         (default: :obj:`None`)
     method
-        Valid options: ``matplotlib``, ``plotly``.
-        ``matplotlib`` generates static 2D plots.
-        ``plotly`` generates 2D or 3D interactive plots. (default: ``matplotlib``)
+        Valid options: `matplotlib`, `plotly`.
+        `matplotlib` generates static 2D plots.
+        `plotly` generates 2D or 3D interactive plots. (default: `None`)
     cmap
-        Used only when ``method = matplotlib``. Can be a name (:class:`str`) 
-        of a built-in :class:`matplotlib` colormap, 
-        or a custom colormap object. (default: ``Spectral``)
+        If `method=matplotlib`, `cmap` can be a name (:class:`str`) 
+        of a built-in :class:`matplotlib` colormap, or a custom colormap object.
+        If `method=plotly`, `cmap` is the value of `color_continuous_scale` 
+        parameter of `plotly.express.scatter` or `plotly.express.scatter_3d`. (default: `None`)
     fontsize
-        Plot fontsize. (default: 6)
+        Applicable if `method=matplotlib`. Plot fontsize. (default: 6)
     max_columns
+        Applicable if `method=matplotlib` and `color_key` is a `adata.obsm` key. 
         A maximum number of columns for a plot. Must be greater than 2. (default: 4)
     marker_size
         Size of scatter plot markers. (default: 3.)
     markerscale
-        Scales marker size in a discrete legend. (default: 1.)
+        Applicable if `method=matplotlib`. Scales marker size in a discrete legend. (default: 1.)
     vmin
-        Used only when ``method = matplotlib``. Lower bound of legend colorbar. (default: ``None``)
+        Lower bound of legend colorbar. If `method=plotly`, you must also specify `vmax` value. (default: ``None``)
     vmax
-        Used only when ``method = matplotlib``. Upper bound of legend colorbar. (default: ``None``)
+        Upper bound of legend colorbar. If `method=plotly`, you must also specify `vmin` value. (default: ``None``)
     legend
-        If ``True``, show legend. (default: ``True``)
+        Applicable if `method=matplotlib`. If ``True``, show legend. (default: ``True``)
         
     Returns
     -------
@@ -84,6 +87,7 @@ def scatter(adata: anndata.AnnData,
         
     if method == 'matplotlib':
         if n_dim == 2:
+            cmap = 'Spectral' if cmap is None else cmap
             cmap = mpl.cm.get_cmap(cmap) if type(cmap) == str else cmap
             
             n_plots = 1 if (colors_obs or not (colors_obs or colors_obsm)) else adata.obsm[color_key].shape[1]
@@ -247,7 +251,10 @@ def scatter(adata: anndata.AnnData,
                              y='y', 
                              color='color', 
                              hover_name='color', 
-                             hover_data={'x': False, 'y': False, 'color': False})
+                             hover_data={'x': False, 'y': False, 'color': False},
+                             range_color=[vmin, vmax] if ((vmin is not None) and (vmax is not None)) else None,
+                             color_continuous_scale=cmap,
+                             title=color_key)
 
             fig.update_layout(scene = dict(
                 xaxis = dict(
@@ -281,7 +288,10 @@ def scatter(adata: anndata.AnnData,
                                 z='z', 
                                 color='color', 
                                 hover_name='color', 
-                                hover_data={'x': False, 'y': False, 'z': False, 'color': False})
+                                hover_data={'x': False, 'y': False, 'z': False, 'color': False},
+                                range_color=[vmin, vmax] if ((vmin is not None) and (vmax is not None)) else None,
+                                color_continuous_scale=cmap, 
+                                title=color_key)
 
             fig.update_layout(scene = dict(
                 xaxis = dict(
