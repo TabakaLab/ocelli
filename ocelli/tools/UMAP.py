@@ -6,11 +6,11 @@ from multiprocessing import cpu_count
 
 def UMAP(adata: anndata.AnnData,
          n_components: int = 2,
+         x_key = None,
          n_neighbors: int = 15,
          min_dist: float = 0.1,
          spread: float = 1.,
          random_state = None,
-         obsm_key = None,
          output_key: str = 'X_umap',
          n_jobs: int = -1,
          copy=False):
@@ -26,6 +26,9 @@ def UMAP(adata: anndata.AnnData,
         The annotated data matrix.
     n_components
         The dimension of the space to embed into. (default: 2)
+    x_key
+        ``adata.obsm[x_key]`` stores an array for dimension reduction.
+        If :obj:`None`, ``adata.X`` is used. (default: :obj:`None`)
     n_neighbors
         The size of local neighborhood (in terms of number of neighboring sample points) 
         used for manifold approximation. Larger values result in more global views
@@ -41,9 +44,6 @@ def UMAP(adata: anndata.AnnData,
         In combination with ``min_dist`` this determines how clustered/clumped the embedded points are.
     random_state
         Pass an :obj:`int` for reproducible results across multiple function calls. (default: :obj:`None`)
-    obsm_key
-        ``adata.obsm[obsm_key]`` stores an array for dimension reduction.
-        If :obj:`None`, ``adata.X`` is used. (default: :obj:`None`)
     output_key
         UMAP embedding is saved to ``adata.obsm[output_key]``. (default: `X_umap`)
     n_jobs
@@ -63,7 +63,7 @@ def UMAP(adata: anndata.AnnData,
     """
     n_jobs = cpu_count() if n_jobs == -1 else min([n_jobs, cpu_count()])
     
-    X = adata.X if obsm_key is None else adata.obsm[obsm_key]
+    X = adata.X if x_key is None else adata.obsm[x_key]
     if issparse(X):
         X = X.toarray()
 
