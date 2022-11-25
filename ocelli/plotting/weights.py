@@ -9,7 +9,8 @@ def weights(adata: anndata.AnnData,
             showmeans: bool = False, 
             showmedians: bool = True, 
             showextrema: bool = False,
-            fontsize: int = 6):
+            fontsize: int = 6,
+            color = None):
     """Multimodal weights violin plots
     
     Basic violin plots of multimodal weights. 
@@ -28,7 +29,7 @@ def weights(adata: anndata.AnnData,
     grouping_key
         ``adata.obs[grouping_key]`` stores celltypes. For each celltype 
         a seperate violin plot is generated. If ``grouping_key`` is not found, 
-        violin plots for all cells are generated. (default: ``celltype``)
+        violin plots for all cells are generated. (default: ``None``)
     showmeans
         If ``True``, will toggle rendering of the means. (default: ``False``)
     showmedians
@@ -37,6 +38,8 @@ def weights(adata: anndata.AnnData,
         If ``True``, will toggle rendering of the extrema. (default: ``False``)
     fontsize
         Plot fontsize. (default: 6)
+    color
+        Color of violin bodies. (default: ``None``)
     Returns
     -------
     :class:`tuple`
@@ -54,10 +57,14 @@ def weights(adata: anndata.AnnData,
     
     if grouping_key is None:
         for i, m in enumerate(modalities):
-            ax[i].violinplot(adata.obsm[weights_key][m], 
+            plot = ax[i].violinplot(adata.obsm[weights_key][m], 
                              showmeans=showmeans, 
                              showmedians=showmedians, 
                              showextrema=showextrema)
+            if color is not None:
+                for pc in plot['bodies']:
+                    pc.set_facecolor(color)
+                    pc.set_edgecolor(color)
             ax[i].set_ylabel(m, size=fontsize)
             ax[i].spines['right'].set_visible(False)
             ax[i].spines['top'].set_visible(False)
@@ -70,10 +77,16 @@ def weights(adata: anndata.AnnData,
     else:
         for i, m in enumerate(modalities):
             for j, g in enumerate(groups):
-                ax[i][j].violinplot(adata[adata.obs[grouping_key] == g].obsm[weights_key][m], 
+                plot = ax[i][j].violinplot(adata[adata.obs[grouping_key] == g].obsm[weights_key][m], 
                                     showmeans=showmeans, 
                                     showmedians=showmedians, 
                                     showextrema=showextrema)
+                if color is not None:
+                    for pc in plot['bodies']:
+                        pc.set_facecolor(color)
+                        pc.set_edgecolor('white')
+                        pc.set_alpha(0.7)
+
                 if i == 0:
                     ax[i][j].set_title(groups[j], size=fontsize)
                 if j == 0:

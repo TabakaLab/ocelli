@@ -194,10 +194,10 @@ def scatter(adata: anndata.AnnData,
                     else:
                         types = np.unique(df[color_names[i]])
                         d = {t: i for i, t in enumerate(types)}
-                        df['c'] = [cmap(d[el]/(len(d.keys()))) for el in df[color_names[i]]]
+                        df['c'] = [cmap(d[el]/(len(d.keys())-1)) for el in df[color_names[i]]]
                         
                         patches = [Line2D(range(1), range(1), color="white", marker='o', 
-                                          markerfacecolor=cmap(d[t]/(len(d.keys()))), label=t) for t in d]
+                                          markerfacecolor=cmap(d[t]/(len(d.keys())-1)), label=t) for t in d]
                         
                         if n_plots == 1:
                             ax.scatter(x=df['x'],
