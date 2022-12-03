@@ -4,7 +4,7 @@ import anndata
 
 
 def LDA(adata: anndata.AnnData,
-        obsm_key: str = None,
+        x_key: str = None,
         output_key: str = 'lda',
         n_components: int = 10,
         doc_topic_prior = None,
@@ -32,8 +32,8 @@ def LDA(adata: anndata.AnnData,
     ----------
     adata
         The annotated data matrix.
-    obsm_key
-        ``adata.obsm[obsm_key]`` stores a matrix for topic modeling. 
+    x_key
+        ``adata.obsm[x_key]`` stores a matrix for topic modeling. 
         Matrix elements can not have negative values.
         If :obj:`None`, ``adata.X`` is used. (default: :obj:`None`)
     output_key
@@ -125,7 +125,7 @@ def LDA(adata: anndata.AnnData,
                                     random_state=random_state,
                                     n_jobs=n_jobs)
 
-    adata.obsm[output_key] = lda.fit_transform(adata.X) if obsm_key is None else lda.fit_transform(adata.obsm[obsm_key])
+    adata.obsm[output_key] = lda.fit_transform(adata.X) if x_key is None else lda.fit_transform(adata.obsm[x_key])
     adata.varm[output_key] = lda.components_.T
     adata.uns['{}_params'.format(output_key)] = {'n_components': n_components, 
                                                  'doc_topic_prior': doc_topic_prior,
@@ -144,6 +144,6 @@ def LDA(adata: anndata.AnnData,
                                                  'random_state': random_state,
                                                  'n_jobs': n_jobs,
                                                  'output_key': output_key,
-                                                 'obsm_key': obsm_key}
+                                                 'x_key': x_key}
 
     return adata if copy else None

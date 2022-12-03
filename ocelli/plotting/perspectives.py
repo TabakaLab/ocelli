@@ -65,7 +65,7 @@ def perspectives(adata,
         if color_key is None:
             d = {el: cmap(0) for i, el in enumerate(colors_unique)}
         else:
-            d = {el: cmap(i/colors_unique.shape[0]) for i, el in enumerate(colors_unique)}
+            d = {el: cmap(i/(colors_unique.shape[0]-1)) for i, el in enumerate(colors_unique)}
             
         fig, ax = plt.subplots(len(alphas), len(betas))
 
