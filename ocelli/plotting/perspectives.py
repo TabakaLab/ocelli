@@ -52,14 +52,20 @@ def perspectives(adata,
     """
 
     is_discrete = False
-    for el in adata.obs[color_key]:
-        if type(el) is str: 
-            is_discrete = True
-            break
+    if color_key is None:
+        is_discrete = True
+        colors_unique = ['Undefined']
+    else:
+        for el in adata.obs[color_key]:
+            if type(el) is str: 
+                is_discrete = True
+                break
+                
+        colors_unique = np.unique(adata.obs[color_key])
     
     cmap = mpl.cm.get_cmap(cmap) if type(cmap) == str else cmap
     
-    colors_unique = np.unique(adata.obs[color_key])
+    
     
     if is_discrete:
         if color_key is None:
@@ -76,7 +82,7 @@ def perspectives(adata,
                                  y=adata.obsm['X_proj'][:, 1], 
                                  edgecolor='none', 
                                  s=marker_size,
-                                 c=[d[col] for col in adata.obs[color_key]])
+                                 c=[d[col] for col in adata.obs[color_key]] if color_key is not None else [d['Undefined'] for _ in range(adata.shape[0])])
                 ax[i][j].set_aspect('equal')
                 ax[i][j].axis('off')
                 ax[i][j].set_title('alpha={} beta={}'.format(a, b), fontsize=fontsize)

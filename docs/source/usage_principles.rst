@@ -18,7 +18,7 @@ The workflow typically consists of multiple function calls on ``adata``, an :obj
     
 Ocelli uses :obj:`anndata.AnnData` data structure, resulting in compatibility with numerous single-cell analysis Python packages, e.g., Scanpy_, scVelo_. A thorough introduction to the :obj:`anndata.AnnData` data structure with tutorials can be found here_.
 
-We prepared a series of tutorials describing using Ocelli with various use cases. You can find them in the sidebar.
+A series of tutorials was prepared to describe Ocelli's usage with various use cases. You can find them in the sidebar.
 
 .. _Scanpy: https://scvelo.readthedocs.io
 .. _scVelo: https://scanpy.readthedocs.io

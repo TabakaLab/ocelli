@@ -18,7 +18,7 @@ def UMAP(adata: anndata.AnnData,
 
     Dimensionality reduction using UMAP.
 
-    This funstion is a wrapper for umap-learn implementation.
+    This function is a wrapper for umap-learn implementation.
 
     Parameters
     ----------

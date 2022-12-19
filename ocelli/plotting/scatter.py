@@ -180,13 +180,13 @@ def scatter(adata: anndata.AnnData,
                         if legend:
                             if n_plots == 1:
                                 ax.set_title(color_names[i], fontsize=fontsize)
-                                cbar = fig.colorbar(scatter, ax=ax, fraction=0.04)
+                                cbar = fig.colorbar(scatter, ax=ax, fraction=0.05)
                             elif n_rows == 1:
                                 ax[col].set_title(color_names[i], fontsize=fontsize)
-                                cbar = fig.colorbar(scatter, ax=ax[col], fraction=0.04)
+                                cbar = fig.colorbar(scatter, ax=ax[col], fraction=0.05)
                             else:
                                 ax[row][col].set_title(color_names[i], fontsize=fontsize)
-                                cbar = fig.colorbar(scatter, ax=ax[row][col], fraction=0.04)
+                                cbar = fig.colorbar(scatter, ax=ax[row][col], fraction=0.05)
 
                             cbar.ax.tick_params(labelsize=fontsize, length=0)
                             cbar.outline.set_color('white')
@@ -194,10 +194,14 @@ def scatter(adata: anndata.AnnData,
                     else:
                         types = np.unique(df[color_names[i]])
                         d = {t: i for i, t in enumerate(types)}
-                        df['c'] = [cmap(d[el]/(len(d.keys())-1)) for el in df[color_names[i]]]
-                        
+                        if len(d) > 1:
+                            df['c'] = [cmap(d[el]/(len(d.keys())-1)) for el in df[color_names[i]]]
+                        else:
+                            df['c'] = [cmap(0.5) for _ in range(df.shape[0])]
+                            
                         patches = [Line2D(range(1), range(1), color="white", marker='o', 
-                                          markerfacecolor=cmap(d[t]/(len(d.keys())-1)), label=t) for t in d]
+                                          markerfacecolor=cmap(d[t]/(len(d.keys())-1)) if len(d) > 1 else cmap(0.5), 
+                                          label=t) for t in d]
                         
                         if n_plots == 1:
                             ax.scatter(x=df['x'],
