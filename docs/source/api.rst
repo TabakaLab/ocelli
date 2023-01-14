@@ -56,7 +56,7 @@ Tools (tl)
    
    tl.FA2
    tl.UMAP
-   tl.project_2d
+   tl.projection
 
 **Gene signatures**
 
@@ -73,6 +73,7 @@ Plotting (pl)
    :toctree: .
    
    pl.scatter
+   pl.scatter_interactive
    pl.weights
    pl.weights_per_cluster
-   pl.perspectives
+   pl.projections

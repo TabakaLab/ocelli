@@ -6,7 +6,7 @@ from .velocity_graph import velocity_graph
 from .timestamp_graph import timestamp_graph
 from .FA2 import FA2
 from .UMAP import UMAP
-from .project_2d import project_2d
+from .projection import projection
 from .mean_z_scores import mean_z_scores
 
 __all__ = [
@@ -18,6 +18,6 @@ __all__ = [
     'timestamp_graph',
     'FA2',
     'UMAP',
-    'project_2d',
+    'projection',
     'mean_z_scores'
 ]
