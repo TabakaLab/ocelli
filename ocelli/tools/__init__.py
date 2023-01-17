@@ -8,6 +8,7 @@ from .FA2 import FA2
 from .UMAP import UMAP
 from .projection import projection
 from .mean_z_scores import mean_z_scores
+from .louvain import louvain
 
 __all__ = [
     'weights', 
@@ -19,5 +20,6 @@ __all__ = [
     'FA2',
     'UMAP',
     'projection',
-    'mean_z_scores'
+    'mean_z_scores',
+    'louvain'
 ]

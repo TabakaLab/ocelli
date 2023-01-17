@@ -65,6 +65,13 @@ Tools (tl)
    
    tl.mean_z_scores
    
+**Clustering**
+
+.. autosummary::
+   :toctree: .
+   
+   tl.louvain
+   
    
 Plotting (pl)
 -------------
@@ -74,6 +81,7 @@ Plotting (pl)
    
    pl.scatter
    pl.scatter_interactive
-   pl.weights
-   pl.weights_per_cluster
    pl.projections
+   pl.violin
+   pl.bar
+   

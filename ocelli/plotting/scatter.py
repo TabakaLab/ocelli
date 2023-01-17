@@ -7,77 +7,68 @@ import matplotlib as mpl
 from matplotlib.lines import Line2D
 from matplotlib.gridspec import GridSpec
 
-"""2D and 3D scatter plots
+
+def scatter(adata: anndata.AnnData,
+            x: str,
+            markersize: float = 1.,
+            c: str = None,
+            cdict = None,
+            cmap = None,
+            vmin = None,
+            vmax = None,
+            figsize = None,
+            ncols: int = 4,
+            fontsize: int = 6,
+            title: str = None,
+            showlegend: bool = True,
+            markerscale: float = 1.,
+            save: str = None,
+            dpi: int = 300):
+    """2D scatter plots
     
-    Static :class:`matplotlib` 2D plots,
-    or interactive :class:`Plotly` 2D or 3D plots.
-    
-    Returns :class:`matplotlib` or :class:`Plotly` figures,
-    that can be further customized, or saved.
+    Plots a 2D scatter plot using a single (`adata.obs`) or multiple (`adata.obsm`) color schemes.
+    The latter case results in a grid of plots.
     
     Parameters
     ----------
     adata
         The annotated data matrix.
-    x_key
-        `adata.obsm` key storing a 2D or 3D embedding for plotting.
-    color_key
-        A key of `adata.obs` or `adata.obsm` with plot coloring information.
-        If `method=plotly`, only `adata.obs` keys are valid.
-        (default: :obj:`None`)
-    method
-        Valid options: `matplotlib`, `plotly`.
-        `matplotlib` generates static 2D plots.
-        `plotly` generates 2D or 3D interactive plots. (default: `None`)
+    x
+        `adata.obsm` key with 2D data.
+    markersize
+         The marker size. (default: 1.)
+    c
+        `adata.obs` or `adata.obsm` key with a color scheme. (default: :obj:`None`)
+    cdict
+        Applied when color scheme is discrete. Can be a dictionary mapping color scheme groups to colors. (default: :obj:`None`)
     cmap
-        If `method=matplotlib`, `cmap` can be a name (:class:`str`) 
-        of a built-in :class:`matplotlib` colormap, or a custom colormap object.
-        If `method=plotly`, `cmap` is the value of `color_continuous_scale` 
-        parameter of `plotly.express.scatter` or `plotly.express.scatter_3d`. (default: `None`)
-    fontsize
-        Applicable if `method=matplotlib`. Plot fontsize. (default: 6)
-    max_columns
-        Applicable if `method=matplotlib` and `color_key` is a `adata.obsm` key. 
-        A maximum number of columns for a plot. Must be greater than 2. (default: 4)
-    marker_size
-        Size of scatter plot markers. (default: 3.)
-    markerscale
-        Applicable if `method=matplotlib`. Scales marker size in a discrete legend. (default: 1.)
+        Applied when color scheme is continuous. Can be a name (:class:`str`) 
+        of a built-in :class:`matplotlib` colormap, or a custom colormap object. (default: :obj:`None`)
     vmin
-        Lower bound of legend colorbar. If `method=plotly`, you must also specify `vmax` value. (default: ``None``)
+        Applied when color scheme is continuous. Lower bound of color scheme. (default: :obj:`None`)
     vmax
-        Upper bound of legend colorbar. If `method=plotly`, you must also specify `vmin` value. (default: ``None``)
-    axes_visible
-        Make axes visible. (default: ``False``)
-    legend
-        Applicable if `method=matplotlib`. If ``True``, show legend. (default: ``True``)
-        
+        Applied when color scheme is continuous. Upper bound of color scheme. (default: :obj:`None`)
+    figsize
+        Plot figure size. (default: :obj:`None`)
+    ncols
+        If color scheme is from `adata.obsm`, `ncols` defines the number of columns of plotting grid. (default: 4)
+    fontsize
+        Plot font size. (default: 6.)
+    title
+        Plot title. (default: :obj:`None`)
+    showlegend
+        If `True`, legend is displayed. (default: `True`)
+    markerscale
+        Changes the size of legend labels. (default: 1.)
+    save
+        Path for saving the figure. (default: :obj:`None`)
+    dpi
+        The DPI (Dots Per Inch) of saved image, controls image quality. (default: 300)
+    
     Returns
     -------
-    :class:`plotly.graph_objs._figure.Figure`
-        A :class:`Plotly` figure if ``static = False``.
-    :class:`tuple`
-        :class:`matplotlib.figure.Figure` and :class:`numpy.ndarray` 
-        storing :class:`matplotlib` figure and axes if ``static = True``.
+    :class:`matplotlib.figure.Figure` if `save = None`.
     """
-
-
-def scatter(adata: anndata.AnnData,
-            x: str,
-            c = None,
-            cdict = None,
-            cmap = None,
-            vmin = None,
-            vmax = None,
-            markersize: float = 1.,
-            markerscale: float = 1.,
-            fontsize: int = 6,
-            figsize = None,
-            ncols: int = 4,
-            showlegend: bool = True,
-            title: str = None,
-            save: str = None,
-            dpi: int = 300):
 
     if x not in list(adata.obsm.keys()):
         raise(NameError('No data found in adata.obsm["{}"].'.format(x)))
@@ -111,7 +102,7 @@ def scatter(adata: anndata.AnnData,
             if isinstance(adata.obsm[c], pd.DataFrame):
                 cnames = list(adata.obsm[c].columns)
                 for col in adata.obsm[c].columns:
-                    df[col] = list(adata.obs[c][col])
+                    df[col] = list(adata.obsm[c][col])
             else:
                 cnames = [i for i in range(adata.obsm[c].shape[1])]
                 for i in range(adata.obsm[c].shape[1]):

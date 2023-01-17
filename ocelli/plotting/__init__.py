@@ -1,13 +1,13 @@
 from .projections import projections
-from .weights import weights
+from .violin import violin
 from .scatter import scatter
 from .scatter_interactive import scatter_interactive
-from .weights_per_cluster import weights_per_cluster
+from .bar import bar
 
 __all__ = [
     'projections',
-    'weights',
+    'violin',
     'scatter',
     'scatter_interactive',
-    'weights_per_cluster'
+    'bar'
 ]

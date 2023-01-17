@@ -1,6 +1,6 @@
-﻿ocelli.pl.scatter
-=================
+﻿ocelli.pl.scatter\_interactive
+==============================
 
 .. currentmodule:: ocelli.pl
 
-.. autofunction:: scatter
+.. autofunction:: scatter_interactive

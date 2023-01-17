@@ -8,58 +8,70 @@ from matplotlib.gridspec import GridSpec
 
 def projections(adata,
                 x: str,
+                markersize: float = 1.,
                 c: str = None,
                 phis: list = [10, 55, 100, 145, 190, 235, 280, 225], 
                 thetas: list = [10, 55, 100, 145],
                 cdict: dict = None,
-                markersize: float = 1.,
-                markerscale: float = 1.,
-                fontsize: float = 6.,
-                figsize: tuple = None,
-                showlegend: bool = True,
-                title: str = None,
                 cmap = None,
                 vmin: float = None,
                 vmax: float = None,
+                figsize: tuple = None,
+                fontsize: float = 6.,
+                title: str = None,
+                showlegend: bool = True,
+                markerscale: float = 1.,
                 random_state = None,
                 save: str = None,
                 dpi: int=300):
-    """Plot 3D data from different angles
+    """Plots 3D data from multiple angles
     
-    The function uses ``ocelli.tl.project_2d`` and plots 
-    a grid of various perspectives at 3D data.
+    This function projects 3D data onto 2D planes using ``ocelli.tl.projection``.
+    2D planes are defined by their normal vectors, as specified by polar coordinates `phi` and `theta`.
     
     Parameters
     ----------
     adata
         The annotated data matrix.
-    x_key
-        ``adata.obsm`` key storing a 3D embedding for plotting.
-    color_key
-        A key of ``adata.obs`` with color scheme. (default: :obj:`None`)
-    alphas
-        A list of polar coordinates in degrees. (default: [0, 45, 90, 135])
-    betas
-        A list of polar coordinates in degrees. (default: [0, 45, 90, 135])
-    marker_size
-        Size of scatter plot markers. (default: 3.)
-    fontsize
-        Plot fontsize. (default: 6)    
+    x
+        `adata.obsm` key with 3D data.
+    markersize
+        The marker size. (default: 1.)
+    c
+         `adata.obs` key with a color scheme. (default: :obj:`None`)
+    phis
+        A list of `phi` values. `phi` ranges from 0 to 360 (degrees) (default: `[10, 55, 100, 145, 190, 235, 280, 225]`)
+    thetas
+        A list of `theta` values. `theta` ranges from 0 to 180 (degrees). (default: `[10, 55, 100, 145]`)
+    cdict
+         Applied when color scheme is discrete. Can be a dictionary mapping color scheme groups to colors. (default: :obj:`None`)
     cmap
-        Used only when ``method = matplotlib``. Can be a name (:class:`str`) 
-        of a built-in :class:`matplotlib` colormap, 
-        or a custom colormap object. (default: ``Spectral``)
+        Applied when color scheme is continuous. Can be a name (:class:`str`) 
+        of a built-in :class:`matplotlib` colormap, or a custom colormap object. (default: :obj:`None`)
+    vmin
+        Applied when color scheme is continuous. Lower bound of color scheme. (default: :obj:`None`)
+    vmax
+        Applied when color scheme is continuous. Upper bound of color scheme. (default: :obj:`None`)
+    figsize
+        Plot figure size. (default: :obj:`None`)
+    fontsize
+        Plot font size. (default: 6.)
+    title
+        Subplot title. (default: :obj:`None`)
+    showlegend
+        If `True`, legend is displayed. (default: `True`)
+    markerscale
+        Changes the size of legend labels. (default: 1.)
     random_state
         Pass an :obj:`int` for reproducible results across multiple function calls. (default: :obj:`None`)
-
+    save
+        Path for saving the figure. (default: :obj:`None`)
+    dpi
+        The DPI (Dots Per Inch) of saved image, controls image quality. (default: 300)
         
     Returns
     -------
-    :class:`plotly.graph_objs._figure.Figure`
-        A :class:`Plotly` figure if ``static = False``.
-    :class:`tuple`
-        :class:`matplotlib.figure.Figure` and :class:`numpy.ndarray` 
-        storing :class:`matplotlib` figure and axes if ``static = True``.
+    :class:`matplotlib.figure.Figure` if `save = None`.
     """
     
     if x not in list(adata.obsm.keys()):

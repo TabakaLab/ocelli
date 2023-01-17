@@ -1,6 +1,6 @@
-﻿ocelli.pl.perspectives
-======================
+﻿ocelli.pl.projections
+=====================
 
 .. currentmodule:: ocelli.pl
 
-.. autofunction:: perspectives
+.. autofunction:: projections

@@ -10,16 +10,57 @@ from matplotlib.gridspec import GridSpec
 
 def scatter_interactive(adata: anndata.AnnData,
                         x: str,
-                        c = None,
+                        markersize: float = 1.,
+                        c: str = None,
                         cdiscrete = None,
                         ccontinuous = None,
                         vmin = None,
                         vmax = None,
-                        markersize: float = 1.,
+                        title=None,
                         showlegend: bool = True,
                         showaxes: bool = False,
-                        title=None,
                         save = None):
+    
+    """2D and 3D interactive scatter plots
+    
+    Generates a 2D or 3D scatter plot using Plotly.
+    
+    Parameters
+    ----------
+    adata
+        The annotated data matrix.
+    x
+        `adata.obsm` key with 2D or 3D data.
+    markersize
+         The marker size. (default: 1.)
+    c
+        `adata.obs` key with a color scheme. (default: :obj:`None`)
+    cdiscrete
+        Applied when color scheme is discrete. Can be a dictionary 
+        mapping color scheme groups to colors. (default: :obj:`None`)
+    ccontinuous
+        Various useful color scales are available in the plotly.express.colors submodules, 
+        specifically plotly.express.colors.sequential, plotly.express.colors.diverging and 
+        plotly.express.colors.cyclical. (default: :obj:`None`)
+    vmin
+        Applied when color scheme is continuous. Lower bound of color scheme.
+        `vmax` also must be specified. (default: :obj:`None`)
+    vmax
+        Applied when color scheme is continuous. Upper bound of color scheme. 
+        `vmin` also must be specified. (default: :obj:`None`)
+    title
+        Plot title. (default: :obj:`None`)
+    showlegend
+        If `True`, legend is displayed. (default: `True`)
+    showaxes
+        If `True`, axes are displayed. (default: `True`)
+    save
+        Path for saving the figure as a html file. (default: :obj:`None`)
+      
+    Returns
+    -------
+    :class:`plotly.graph_objs._figure.Figure` if `save = None`.
+    """
     
     if x not in list(adata.obsm.keys()):
         raise(NameError('No data found in adata.obsm["{}"].'.format(x)))
@@ -108,7 +149,6 @@ def scatter_interactive(adata: anndata.AnnData,
             xaxis=dict(showticklabels=showaxes),
             yaxis=dict(showticklabels=showaxes),
             zaxis=dict(showticklabels=showaxes)))
-
         
     fig.update_layout(showlegend=showlegend)
     fig.update_traces(marker=dict(size=markersize))
