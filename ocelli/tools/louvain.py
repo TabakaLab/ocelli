@@ -33,7 +33,7 @@ def louvain(adata,
     -------
     :obj:`None`
         By default (``copy=False``), updates ``adata`` with the following fields:
-        ``adata.obs[out]``.
+        ``adata.obs[out]`` (Louvain cluster labels).
     :class:`anndata.AnnData`
         When ``copy=True`` is set, a copy of ``adata`` with those fields is returned.
     """

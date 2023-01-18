@@ -30,13 +30,20 @@ Preprocessing (pp)
 Tools (tl)
 ----------
 
-**Multimodal Diffusion Maps**
+**Multimodal weights**
 
 .. autosummary::
    :toctree: .
    
    tl.weights
    tl.scale_weights
+
+
+**Multimodal Diffusion Maps**
+
+.. autosummary::
+   :toctree: .  
+   
    tl.MDM
    
    
@@ -46,10 +53,9 @@ Tools (tl)
    :toctree: .
    
    tl.neighbors_graph
-   tl.velocity_graph
-   tl.timestamp_graph
+   tl.transitions_graph
    
-**Plotting tools**
+**Dimension reduction**
 
 .. autosummary::
    :toctree: .

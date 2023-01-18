@@ -46,14 +46,14 @@ def scaling_worker(w, nn, split, alpha=10):
 
 
 def weights(adata: anndata.AnnData,
-            n_pairs: int = 1000,
             modalities=None,
-            weights_key: str = 'weights',
+            out: str = 'weights',
+            n_pairs: int = 1000,
             n_jobs: int = -1,
             random_state = None,
             verbose: bool = False,
             copy: bool = False):
-    """Multimodal cell-specific weights
+    """Multimodal weights
     
     Computes cell-specific weights for each modality.
 
@@ -61,31 +61,31 @@ def weights(adata: anndata.AnnData,
     ----------
     adata
         The annotated data matrix.
+    modalities
+        List of `adata.obsm` keys storing modalities.
+        If :obj:`None`, modalities' keys are loaded from `adata.uns[modalities]`. (default: :obj:`None`)
+    out
+       `adata.obsm` key where multimodal weights are saved. (default: `weights`)
     n_pairs
         Number of cell pairs used to estimate empirical cumulative
-        distribution functions of intercellular distances. (default: 1000)
-    modalities
-        A list of ``adata.obsm`` keys storing modalities.
-        If :obj:`None`, modalities' keys are loaded from ``adata.uns[modalities]``. (default: :obj:`None`)
-    weights_key
-        Weights will be saved to ``adata.obsm[weights_key]``. (default: `weights`)
+        distribution functions of distances between cells. (default: 1000)
     n_jobs
         The number of parallel jobs. If the number is larger than the number of CPUs, it is changed to -1.
         -1 means all processors are used. (default: -1)
     random_state
         Pass an :obj:`int` for reproducible results across multiple function calls. (default: :obj:`None`)
     verbose
-        Print progress notifications. (default: ``False``)
+        Print progress notifications. (default: `False`)
     copy
-        Return a copy of :class:`anndata.AnnData`. (default: ``False``)
+        Return a copy of :class:`anndata.AnnData`. (default: `False`)
 
     Returns
     -------
     :obj:`None`
-        By default (``copy=False``), updates ``adata`` with the following fields:
-        ``adata.obsm[weights_key]`` (:class:`pandas.DataFrame`).
+        By default (`copy=False`), updates `adata` with the following fields:
+        `adata.obsm[out]` (multimodal weights).
     :class:`anndata.AnnData`
-        When ``copy=True`` is set, a copy of ``adata`` with those fields is returned.
+        When `copy=True` is set, a copy of `adata` with those fields is returned.
     """
     n_jobs = cpu_count() if n_jobs == -1 else min([n_jobs, cpu_count()])
 
@@ -126,7 +126,7 @@ def weights(adata: anndata.AnnData,
     else:
         weights = np.ones((n_obs, 1))
 
-    adata.obsm[weights_key] = pd.DataFrame(weights, index=list(adata.obs.index), columns=modality_names)
+    adata.obsm[out] = pd.DataFrame(weights, index=list(adata.obs.index), columns=modality_names)
 
     if verbose:
         print('Multimodal weights estimated.')

@@ -3,10 +3,11 @@ from scipy.sparse import coo_matrix, diags, issparse
 from scipy.sparse.linalg import eigsh
 from multiprocessing import cpu_count
 import ray
-from anndata import AnnData
+import anndata as ad
 
 
 def adjusted_gaussian_kernel(x, y, epsilon_x, epsilon_y):
+    
     epsilons_mul = epsilon_x * epsilon_y
     
     if epsilons_mul == 0:
@@ -41,12 +42,12 @@ def affinity_worker(modality_ref, weights_ref, nn_ref, epsilons_ref, split):
     return np.asarray(affinities)
 
 
-def MDM(adata: AnnData,
+def MDM(adata: ad.AnnData,
         n_components: int = 10,
+        modalities: list = None,
+        weights: str = 'weights',
+        out: str = 'X_mdm',
         bandwidth_reach: int = 20,
-        modalities = None,
-        weights_key: str = 'weights',
-        output_key: str = 'X_mdm',
         unimodal_norm: bool = True,
         eigval_times_eigvec: bool = True,
         save_mmc: bool = False,
@@ -56,31 +57,30 @@ def MDM(adata: AnnData,
         copy: bool = False):
     """Multimodal Diffusion Maps
 
-    Algorithm calculates multimodal diffusion maps cell embeddings using
-    pre-calculated multimodal weights.
+    This function computes multimodal latent space based on weighted modalities. 
 
     Parameters
     ----------
     adata
         The annotated data matrix.
     n_components
-        The number of multimodal diffusion maps components. (default: 10)
-    bandwidth_reach
-        Number of nearest neighbor used for calculating epsilons. (default: 20)
+        Number of MDM components. (default: 10)
     modalities
-        A list of ``adata.obsm`` keys storing modalities.
-        If :obj:`None`, modalities' keys are loaded from ``adata.uns[modalities]``. (default: :obj:`None`)
-    weights_key
-        ``adata.obsm[weights_key]`` stores multimodal weights. (default: `weights`)
-    output_key
-        Multimodal diffusion maps embedding is saved to ``adata.obsm[output_key]``. (default: `X_mdm`)
+        List of `adata.obsm` keys storing modalities.
+        If :obj:`None`, modalities' keys are loaded from `adata.uns[modalities]`. (default: :obj:`None`)
+    weights
+        `adata.obsm` key storing modality weights. (default: `weights`)
+    out
+        `adata.obsm` key where MDM embedding is saved. (default: `X_mdm`)
+    bandwidth_reach
+        Index of nearest neighbor used for calculating epsilons. (default: 20)
     unimodal_norm
-        If ``True``, unimodal kernel matrices are normalized. (default: ``True``)
+        If ``True``, unimodal kernel matrices are normalized mid-training. (default: `True`)
     eigval_times_eigvec
-        If ``True``, the multimodal diffusion maps embedding is calculated by multiplying
-        eigenvectors by eigenvalues. Otherwise, the embedding consists of unmultiplied eigenvectors. (default: ``True``)
+        If ``True``, the MDM embedding is calculated by multiplying
+        eigenvectors by eigenvalues. Otherwise, the embedding consists of eigenvectors. (default: `True`)
     save_mmc
-        If ``True``, the multimodal Markov chain array is saved to ``adata.uns['mmc']``. (default: ``False``)
+        If ``True``, the multimodal Markov chain array is saved to ``adata.uns['multimodal_markov_chain']``. (default: `False`)
     n_jobs
         The number of parallel jobs. If the number is larger than the number of CPUs, it is changed to -1.
         -1 means all processors are used. (default: -1)
@@ -94,9 +94,9 @@ def MDM(adata: AnnData,
     Returns
     -------
     :obj:`None`
-        By default (``copy=False``), updates ``adata`` with the following fields:
-        ``adata.obsm[output_key]`` (:class:`numpy.ndarray`),
-        ``adata.uns['mmc']`` (if ``save_mmc``, :class:`scipy.sparse.csr_matrix`).
+        By default (`copy=False`), updates `adata` with the following fields:
+        `adata.obsm[out]` (MDM embedding),
+        `adata.uns['mmc']` (if `save_mmc = True`, multimodal Markov chain).
     :class:`anndata.AnnData`
         When ``copy=True`` is set, a copy of ``adata`` with those fields is returned.
     """
@@ -106,8 +106,8 @@ def MDM(adata: AnnData,
     if len(modality_names) == 0:
         raise(NameError('No modality keys found in adata.uns[modalities].'))
 
-    if weights_key not in adata.obsm:
-        raise(KeyError('No weights found in adata.uns["{}"]. Run ocelli.tl.weights.'.format(weights_key)))
+    if weights not in adata.obsm:
+        raise(KeyError('No weights found in adata.uns["{}"]. Run ocelli.tl.weights.'.format(weights)))
     
     n_jobs = cpu_count() if n_jobs == -1 else min([n_jobs, cpu_count()])
     
@@ -118,7 +118,7 @@ def MDM(adata: AnnData,
 
     for i, m in enumerate(modality_names):
         modality_ref = ray.put(adata.obsm[m])
-        weights_ref = ray.put(np.asarray(adata.obsm[weights_key])[:, i])
+        weights_ref = ray.put(np.asarray(adata.obsm[weights])[:, i])
         nn_ref = ray.put(adata.obsm['neighbors_{}'.format(m)])
         epsilons_ref = ray.put(adata.obsm['distances_{}'.format(m)][:, bandwidth_reach - 1])
         
@@ -147,7 +147,7 @@ def MDM(adata: AnnData,
         print('Multimodal Markov chain calculated.')
         
     if save_mmc:
-        adata.uns['mmc'] = multiM
+        adata.uns['multimodal_markov_chain'] = multiM
 
     if random_state is not None:
         np.random.seed(random_state)
@@ -158,7 +158,7 @@ def MDM(adata: AnnData,
     eigvals, eigvecs = eigsh(multiM, k=n_components + 11, which='LA', maxiter=100000, v0=v0)
     eigvals, eigvecs = np.flip(eigvals)[1:n_components + 1], np.flip(eigvecs, axis=1)[:, 1:n_components + 1]
     
-    adata.obsm[output_key] = eigvecs * eigvals if eigval_times_eigvec else eigvecs
+    adata.obsm[out] = eigvecs * eigvals if eigval_times_eigvec else eigvecs
 
     if verbose:
         print('Eigendecomposition finished.')

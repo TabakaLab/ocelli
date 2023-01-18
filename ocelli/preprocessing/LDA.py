@@ -1,18 +1,19 @@
 from sklearn.decomposition import LatentDirichletAllocation
 from multiprocessing import cpu_count
-import anndata
+import anndata as ad
+import pandas as pd
 
 
-def LDA(adata: anndata.AnnData,
-        x_key: str = None,
-        output_key: str = 'lda',
+def LDA(adata: ad.AnnData,
+        x: str = None,
+        out: str = 'X_lda',
         n_components: int = 10,
+        max_iter: int = 30,
         doc_topic_prior = None,
         topic_word_prior: float = 0.1,
         learning_method: str = 'batch',
         learning_decay: float = 0.7,
         learning_offset: float = 10.0,
-        max_iter: int = 30,
         batch_size: int = 128,
         evaluate_every: int = -1,
         total_samples: int = 1000000,
@@ -25,50 +26,43 @@ def LDA(adata: anndata.AnnData,
         copy: bool = False):
     """Latent Dirichlet Allocation
 
-    Latent Dirichlet Allocation (LDA) is generative probabilistic model for topic modeling.
+    Latent Dirichlet Allocation (LDA) is a generative probabilistic model for topic modeling.
     This function is a wrapper of :class:`sklearn.decomposition.LatentDirichletAllocation`.
 
     Parameters
     ----------
     adata
         The annotated data matrix.
-    x_key
-        ``adata.obsm[x_key]`` stores a matrix for topic modeling. 
-        Matrix elements can not have negative values.
-        If :obj:`None`, ``adata.X`` is used. (default: :obj:`None`)
-    output_key
-        Key of ``adata.obsm`` and ``adata.varm`` under which LDA output will be saved. (default: `lda`)
+    x
+        `adata.obsm` key storing a matrix with non-negative values. If :obj:`None`, `adata.X` is modeled. (default: :obj:`None`)
+    out
+        LDA output key (`adata.obsm` and `adata.varm`). (default: `X_lda`)
     n_components
         Number of topics. (default: 10)
+    max_iter
+        The maximum number of passes over the training data (aka epochs). (default: 30)
     doc_topic_prior
         Prior of document topic distribution `theta`. If the value is None,
         defaults to `50 / n_components`. (default: :obj:`None`)
     topic_word_prior
         Prior of topic word distribution `beta`. (default: 0.1)
     learning_method
-        Method used to update ``_component``.
+        Method used to update `_component`.
         In general, if the data size is large, the online update will be much
-        faster than the batch update. (default: `batch`)
-        
-        Valid options::
-        
-            'batch': Batch variational Bayes method. Use all training data in
-                each EM update.
-                Old `components_` will be overwritten in each iteration.
-            'online': Online variational Bayes method. In each EM update, use
-                mini-batch of training data to update the ``components_``
-                variable incrementally. The learning rate is controlled by the
-                ``learning_decay`` and the ``learning_offset`` parameters.
+        faster than the batch update. Valid options: 
+        `batch` (Batch variational Bayes method. Use all training data in
+        each EM update. Old `components_` will be overwritten in each iteration.) 
+        and `online` (Online variational Bayes method. In each EM update, use
+        mini-batch of training data to update the `components_`
+        variable incrementally. The learning rate is controlled by the
+        `learning_decay` and the `learning_offset` parameters.) (default: `batch`)
     learning_decay
         It is a parameter that control learning rate in the online learning method. 
         The value should be set between (0.5, 1.0] to guarantee asymptotic convergence.
-        When the value is 0.0 and batch_size is ``n_samples``, the update method is same as batch learning. 
         In the literature, this is called kappa. (default: 0.7)
     learning_offset
         A (positive) parameter that downweights early iterations in online learning.
-        It should be greater than 1.0. In the literature, this is called tau_0. (default: 10.)
-    max_iter
-        The maximum number of passes over the training data (aka epochs). (default: 30)
+        It should be greater than 1.0. In the literature, this is called `tau_0`. (default: 10.)
     batch_size
         Number of documents to use in each EM iteration. Only used in online learning. (default: 128)
     evaluate_every
@@ -84,24 +78,24 @@ def LDA(adata: anndata.AnnData,
     max_doc_update_iter
         Max number of iterations for updating document topic distribution in the E-step. (default: 100)
     verbose
-        Verbosity level. (default: 0)
+        Verbosity level. Valid options: 0, 1, 2. (default: 0)
     random_state
         Pass an :obj:`int` for reproducible results across multiple function calls. (default: :obj:`None`)
     n_jobs
         The number of parallel jobs. If the number is larger than the number of CPUs, it is changed to -1.
         -1 means all processors are used. (default: -1)
     copy
-        Return a copy of :class:`anndata.AnnData`. (default: ``False``)   
+        Return a copy of :class:`anndata.AnnData`. (default: `False`)   
 
     Returns
     -------
     :obj:`None`
-        By default (``copy=False``), updates ``adata`` with the following fields:
-        ``adata.obsm[output_key]`` (:class:`numpy.ndarray` of shape ``(n_obs, n_components)`` storing LDA topic components),
-        ``adata.varm[output_key]`` (:class:`numpy.ndarray` of shape ``(n_vars, n_components)`` storing LDA topic scores),
-        ``adata.uns[output_key_params]`` (:class:`dict` storing LDA parameters).
+        By default (`copy=False`), updates `adata` with the following fields: 
+        `adata.obsm[out]` (LDA observation-topic distribution),
+        `adata.varm[out]` (LDA feature-topic distribution),
+        and `adata.uns[out_params]` (LDA model parameters).
     :class:`anndata.AnnData`
-        When ``copy=True`` is set, a copy of ``adata`` with those fields is returned.
+        When `copy=True` is set, a copy of `adata` with those fields is returned.
     """
 
     n_jobs = cpu_count() if n_jobs == -1 else min([n_jobs, cpu_count()])
@@ -125,25 +119,29 @@ def LDA(adata: anndata.AnnData,
                                     random_state=random_state,
                                     n_jobs=n_jobs)
 
-    adata.obsm[output_key] = lda.fit_transform(adata.X) if x_key is None else lda.fit_transform(adata.obsm[x_key])
-    adata.varm[output_key] = lda.components_.T
-    adata.uns['{}_params'.format(output_key)] = {'n_components': n_components, 
-                                                 'doc_topic_prior': doc_topic_prior,
-                                                 'topic_word_prior': topic_word_prior,
-                                                 'learning_method': learning_method,
-                                                 'learning_decay': learning_decay,
-                                                 'learning_offset': learning_offset,
-                                                 'max_iter': max_iter,
-                                                 'batch_size': batch_size,
-                                                 'evaluate_every': evaluate_every,
-                                                 'total_samples': total_samples,
-                                                 'perp_tol': perp_tol,
-                                                 'mean_change_tol': mean_change_tol,
-                                                 'max_doc_update_iter': max_doc_update_iter,
-                                                 'verbose': verbose,
-                                                 'random_state': random_state,
-                                                 'n_jobs': n_jobs,
-                                                 'output_key': output_key,
-                                                 'x_key': x_key}
+    X_lda = lda.fit_transform(adata.X if x is None else adata.obsm[x])
+        
+    adata.obsm[out] = pd.DataFrame(X_lda, 
+                                   index=list(adata.obs.index), 
+                                   columns=['Topic {}'.format(i) for i in range(n_components)])
+    adata.varm[out] = lda.components_.T
+    adata.uns['{}_params'.format(out)] = {'n_components': n_components, 
+                                          'doc_topic_prior': doc_topic_prior,
+                                          'topic_word_prior': topic_word_prior,
+                                          'learning_method': learning_method,
+                                          'learning_decay': learning_decay,
+                                          'learning_offset': learning_offset,
+                                          'max_iter': max_iter,
+                                          'batch_size': batch_size,
+                                          'evaluate_every': evaluate_every,
+                                          'total_samples': total_samples,
+                                          'perp_tol': perp_tol,
+                                          'mean_change_tol': mean_change_tol,
+                                          'max_doc_update_iter': max_doc_update_iter,
+                                          'verbose': verbose,
+                                          'random_state': random_state,
+                                          'n_jobs': n_jobs,
+                                          'out': out,
+                                          'x': x}
 
     return adata if copy else None

@@ -1,50 +1,52 @@
-import anndata
+import anndata as ad
 import numpy as np
 
-def neighbors_graph(adata: anndata.AnnData,
+
+def neighbors_graph(adata: ad.AnnData,
+                    x: str,
                     n_edges: int = 10,
-                    neighbors_key: str = 'X_mdm',
-                    graph_key: str = 'graph',      
+                    out: str = 'graph',      
                     verbose: bool = False,
                     copy: bool = False):
     """Nearest neighbors-based graph
-
-    From each graph node, ``n_edges`` edges come out. They correspond to respective cell's nearest neighbors.
     
-    Before constructing the graph, you must perform a nearest neighbors search in the embedding space. 
-    To do so, run ``ocelli.pp.neighbors(adata, modalities=[neighbors_key])``,
-    where ``neighbors_key`` is a :class:`str`, and ``adata.obsm[neighbors_key]`` stores the embedding.
+    Before constructing the graph, you must perform a nearest neighbors search 
+    in the embedding space by running :class:`ocelli.pp.neighbors`.
+
+    This function computes a nearest neighbors-based graph.
+    Each graph node has `n_edges` edges coming out.
+    They correspond to the respective cell's nearest neighbors.
     
     Parameters
     ----------
     adata
         The annotated data matrix.
+    x
+        `adata.obsm` key for which nearest neighbors were precomputed.
     n_edges
-        number of edges coming out of each node. (default: 10)
-    neighbors_key
-        Stores ``adata.obsm`` key used for calculating nearest neighbors. (default: `X_mdm`)
-    graph_key
-        The graph is saved to ``adata.obsm[graph_key]``. (default: `graph`)
+        Number of edges coming out of each node. (default: 10)
+    out
+        `adata.obsm` key where graph is saved. (default: `graph`)
     verbose
-        Print progress notifications. (default: ``False``)
+        Print progress notifications. (default: `False`)
     copy
-        Return a copy of :class:`anndata.AnnData`. (default: ``False``)
+        Return a copy of :class:`anndata.AnnData`. (default: `False`)
         
     Returns
     -------
     :obj:`None`
-        By default (``copy=False``), updates ``adata`` with the following fields:
-        ``adata.obsm[graph_key]`` (:class:`numpy.ndarray`).
+        By default (`copy=False`), updates `adata` with the following fields:
+        ``adata.obsm[out]`` (graph).
     :class:`anndata.AnnData`
-        When ``copy=True`` is set, a copy of ``adata`` with those fields is returned.
+        When `copy=True` is set, a copy of `adata` with those fields is returned.
     """
     
-    if 'neighbors_{}'.format(neighbors_key) not in adata.obsm:
-        raise(KeyError('No nearest neighbors found in adata.obsm[neighbors_{}]. Run ocelli.pp.neighbors.'.format(neighbors_key)))
+    if 'neighbors_{}'.format(x) not in adata.obsm:
+        raise(KeyError('No nearest neighbors found in adata.obsm[neighbors_{}]. Run ocelli.pp.neighbors.'.format(x)))
         
-    adata.obsm[graph_key] = np.asarray(adata.obsm['neighbors_{}'.format(neighbors_key)][:, :n_edges])
+    adata.obsm[out] = np.asarray(adata.obsm['neighbors_{}'.format(x)][:, :n_edges])
 
     if verbose:
-        print('[{}] Nearest neighbors-based graph constructed.'.format(neighbors_key))
+        print('Nearest neighbors-based graph constructed.')
     
     return adata if copy else None
