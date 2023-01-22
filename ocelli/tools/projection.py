@@ -4,8 +4,8 @@ import numpy as np
 
 def projection(adata: ad.AnnData,
                x: str,
-               phi: int = 0,
-               theta: int = 0,
+               phi: int = 20,
+               theta: int = 20,
                out: str = 'X_proj',
                random_state = None,
                copy: bool = False):

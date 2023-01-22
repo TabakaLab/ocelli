@@ -106,11 +106,7 @@ def weights(adata: anndata.AnnData,
         pairs = np.random.choice(range(n_obs), size=(n_pairs, 2))
         ecdfs = list()
         for m in modalities:
-            if issparse(m):
-                modality_dists = [np.linalg.norm(m[pairs[i, 0]].toarray() - m[pairs[i, 1]].toarray(), axis=None)
-                                  for i in range(n_pairs)]
-            else:
-                modality_dists = [np.linalg.norm(m[pairs[i, 0]] - m[pairs[i, 1]], axis=None) for i in range(n_pairs)]
+            modality_dists = [np.linalg.norm(m[pairs[i, 0]] - m[pairs[i, 1]], axis=None) for i in range(n_pairs)]
             ecdfs.append(ECDF(modality_dists))
 
         splits = np.array_split(range(n_obs), n_jobs)

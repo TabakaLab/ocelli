@@ -24,8 +24,8 @@ def worker(X):
 def mean_z_scores(adata: ad.AnnData, 
                   markers: list, 
                   x: str = None, 
-                  vmin: float = -3., 
-                  vmax: float = 3., 
+                  vmin: float = -5., 
+                  vmax: float = 5., 
                   out: str = 'mean_z_scores',
                   n_jobs: int = -1,
                   copy: bool = False):
@@ -48,9 +48,9 @@ def mean_z_scores(adata: ad.AnnData,
         `adata.obsm` key storing log-normalized count matrix of features, including gene signature markers.
         If :obj:`None`, ``adata.X`` is used. (default: :obj:`None`)
     vmin
-        Before averaging, z-scores below `vmin` are changed to `vmin`. (default: -3)
+        Before averaging, z-scores below `vmin` are changed to `vmin`. (default: -5)
     vmax
-        Before averaging, z-scores above `vmax` are changed to `vmax`. (default: 3)
+        Before averaging, z-scores above `vmax` are changed to `vmax`. (default: 5)
     out
         `adata.obs` key where mean z-scores are saved. (default: `mean_z_scores`)
     n_jobs

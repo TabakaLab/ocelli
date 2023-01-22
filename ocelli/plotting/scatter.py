@@ -95,8 +95,7 @@ def scatter(adata: anndata.AnnData,
         elif cobsm:
             nplots = adata.obsm[c].shape[1]
             nrow = nplots // ncols if nplots % ncols == 0 else nplots // ncols + 1
-            
-            ncol = ncols if nplots >= ncols else nplots % ncols
+            ncol = ncols if nplots >= ncols else nplots
             
             
             if isinstance(adata.obsm[c], pd.DataFrame):
@@ -140,7 +139,10 @@ def scatter(adata: anndata.AnnData,
         if is_discrete:
             groups = np.unique(df[col])
             if cdict is None:
-                cdict = {g: plt.get_cmap('jet')(j / (groups.shape[0] - 1)) for j, g in enumerate(groups)}
+                if groups.shape[0] > 1:
+                    cdict = {g: plt.get_cmap('jet')(j / (groups.shape[0] - 1)) for j, g in enumerate(groups)}
+                else:
+                    cdict = {g: '#000000' for j, g in enumerate(groups)}
             
             ax = fig.add_subplot(gs[i//ncol, 2*(i % ncol)])
             ax.set_title(col if title is None else title, fontsize=fontsize)
@@ -158,7 +160,7 @@ def scatter(adata: anndata.AnnData,
                 ax = fig.add_subplot(gs[i//ncol, 2*(i % ncol) + 1])
                 ax.axis('off')
                 
-                ax.legend(handles=patches, fontsize=fontsize, borderpad=0, frameon=False, markerscale=markerscale)
+                ax.legend(handles=patches, fontsize=fontsize, borderpad=0, frameon=False, markerscale=markerscale, loc='center')
         else:
             if cmap is None:
                 cmap = plt.get_cmap('jet')
@@ -172,7 +174,7 @@ def scatter(adata: anndata.AnnData,
                             vmax=vmax if vmax is not None else np.max(df[col]))
             
             if showlegend:
-                cbar = fig.colorbar(sc, ax=ax, fraction=0.1)
+                cbar = fig.colorbar(sc, ax=ax, fraction=0.05)
                 cbar.ax.tick_params(labelsize=fontsize, length=0)
                 cbar.outline.set_color('white')
                

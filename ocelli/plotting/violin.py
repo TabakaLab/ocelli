@@ -7,16 +7,15 @@ import matplotlib.patches as mpatches
 
 
 def violin(adata: ad.AnnData,
-        x: str,
-        groups: str,
-        c: str,
-        cdict = None,
-        figsize = None,
-        fontsize: int = 6,
-        showlegend: bool = True,
-        markerscale: float = 1.,
-        save: str = None,
-        dpi: int = 300):
+           groups: str,
+           values: str,
+           cdict = None,
+           figsize = None,
+           fontsize: int = 6,
+           showlegend: bool = True,
+           markerscale: float = 1.,
+           save: str = None,
+           dpi: int = 300):
     """Feature vioolin plots
     
     Generates violin plots showing distributions of feature values taken from `adata.obs` or `adata.obsm`.
@@ -26,12 +25,10 @@ def violin(adata: ad.AnnData,
     ----------
     adata
         The annotated data matrix.
-    x
-        `adata.obsm` key with 2D data.
     groups
-        `adata.obs` key with cell groups.
-    c
-        `adata.obs` or `adata.obsm` key with a color scheme.
+        `adata.obs` key storing the annotation of cell groups.
+    values
+        `adata.obs` or `adata.obsm` key storing a distribution of values to be plotted.
     cdict
         A dictionary mapping color scheme groups to colors. (default: :obj:`None`)
     figsize
@@ -51,22 +48,16 @@ def violin(adata: ad.AnnData,
     -------
     :class:`matplotlib.figure.Figure` if `save = None`.
     """
-
-    if x not in list(adata.obsm.keys()):
-        raise(NameError('No data found in adata.obsm["{}"].'.format(x)))
-        
+ 
     if groups not in adata.obs.keys():
         raise(NameError('No data found in adata.obs["{}"].'.format(groups)))
-    
-    if adata.obsm[x].shape[1] != 2:
-        raise(ValueError('adata.obsm["{}"] must by 2D.'.format(x)))
         
     df = pd.DataFrame([], index=[i for i in range(adata.shape[0])])
         
     cnames = []
         
-    cobs = True if c in list(adata.obs.keys()) else False
-    cobsm = True if c in list(adata.obsm.keys()) else False
+    cobs = True if values in list(adata.obs.keys()) else False
+    cobsm = True if values in list(adata.obsm.keys()) else False
 
     if cobs and cobsm:
         raise(NameError('Confusion between adata.obs["{}"] and adata.obsm["{}"]. Specify a key unique.'.format(c, c)))
@@ -75,20 +66,20 @@ def violin(adata: ad.AnnData,
 
     if cobs:
         nrow = 1
-        cnames = [c]
-        df[c] = list(adata.obs[c])
+        cnames = [values]
+        df[values] = list(adata.obs[values])
 
     elif cobsm:
-        nrow = adata.obsm[c].shape[1]
+        nrow = adata.obsm[values].shape[1]
 
-        if isinstance(adata.obsm[c], pd.DataFrame):
-            cnames = list(adata.obsm[c].columns)
-            for col in adata.obsm[c].columns:
-                df[col] = list(adata.obsm[c][col])
+        if isinstance(adata.obsm[values], pd.DataFrame):
+            cnames = list(adata.obsm[values].columns)
+            for col in adata.obsm[values].columns:
+                df[col] = list(adata.obsm[values][col])
         else:
-            cnames = [i for i in range(adata.obsm[c].shape[1])]
-            for i in range(adata.obsm[c].shape[1]):
-                df[i] = list(adata.obsm[c][:, i])    
+            cnames = [i for i in range(adata.obsm[values].shape[1])]
+            for i in range(adata.obsm[values].shape[1]):
+                df[i] = list(adata.obsm[values][:, i])    
 
     fig = plt.figure(constrained_layout=True, figsize=figsize)
     
@@ -101,8 +92,6 @@ def violin(adata: ad.AnnData,
                   width_ratios=[0.95*(1/(ncol-1)) for _ in range(ncol-1)] + [0.05], 
                   height_ratios=[1/nrow for _ in range(nrow)])                
             
-    
-    
     if cdict is None:
         cdict = {g: plt.get_cmap('jet')(j / (groups_unique.shape[0] - 1)) for j, g in enumerate(groups_unique)}
         
@@ -117,9 +106,7 @@ def violin(adata: ad.AnnData,
             ax.spines[axis].set_linewidth(0.2)
         ax.tick_params(width=0.2)
         
-        data = [np.asarray(adata[adata.obs[groups] == g].obsm[c][m]) for g in groups_unique]
-
-        
+        data = [np.asarray(adata[adata.obs[groups] == g].obsm[values][m]) for g in groups_unique]
             
         violin = ax.violinplot(dataset=data, showextrema=False, showmedians=True)
 

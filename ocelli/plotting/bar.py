@@ -6,10 +6,10 @@ import numpy as np
 from matplotlib.gridspec import GridSpec
 import pandas as pd
 
+
 def bar(adata: anndata.AnnData,
-        x: str,
         groups: str,
-        c: str,
+        values: str,
         height: str = 'median',
         cdict = None,
         figsize = None,
@@ -27,11 +27,9 @@ def bar(adata: anndata.AnnData,
     ----------
     adata
         The annotated data matrix.
-    x
-        `adata.obsm` key with 2D data.
     groups
         `adata.obs` key with cell groups.
-    c
+    values
         `adata.obs` or `adata.obsm` key with a color scheme.
     height
         Height of bars. Valid options: `median`, `mean`. (default: `median`)
@@ -55,23 +53,15 @@ def bar(adata: anndata.AnnData,
     :class:`matplotlib.figure.Figure` if `save = None`.
     """
 
-    if x not in list(adata.obsm.keys()):
-        raise(NameError('No data found in adata.obsm["{}"].'.format(x)))
-        
     if groups not in adata.obs.keys():
         raise(NameError('No data found in adata.obs["{}"].'.format(groups)))
-    
-    if adata.obsm[x].shape[1] != 2:
-        raise(ValueError('adata.obsm["{}"] must by 2D.'.format(x)))
         
     df = pd.DataFrame([], index=[i for i in range(adata.shape[0])])
         
     cnames = []
-    
-    ncol = 2
         
-    cobs = True if c in list(adata.obs.keys()) else False
-    cobsm = True if c in list(adata.obsm.keys()) else False
+    cobs = True if values in list(adata.obs.keys()) else False
+    cobsm = True if values in list(adata.obsm.keys()) else False
 
     if cobs and cobsm:
         raise(NameError('Confusion between adata.obs["{}"] and adata.obsm["{}"]. Specify a key unique.'.format(c, c)))
@@ -80,27 +70,27 @@ def bar(adata: anndata.AnnData,
 
     if cobs:
         nrow = 1
-        cnames = [c]
-        df[c] = list(adata.obs[c])
+        cnames = [values]
+        df[values] = list(adata.obs[values])
 
     elif cobsm:
-        nrow = adata.obsm[c].shape[1]
+        nrow = adata.obsm[values].shape[1]
 
-        if isinstance(adata.obsm[c], pd.DataFrame):
-            cnames = list(adata.obsm[c].columns)
-            for col in adata.obsm[c].columns:
-                df[col] = list(adata.obsm[c][col])
+        if isinstance(adata.obsm[values], pd.DataFrame):
+            cnames = list(adata.obsm[values].columns)
+            for col in adata.obsm[values].columns:
+                df[col] = list(adata.obsm[values][col])
         else:
-            cnames = [i for i in range(adata.obsm[c].shape[1])]
-            for i in range(adata.obsm[c].shape[1]):
-                df[i] = list(adata.obsm[c][:, i])    
+            cnames = [i for i in range(adata.obsm[values].shape[1])]
+            for i in range(adata.obsm[values].shape[1]):
+                df[i] = list(adata.obsm[values][:, i])
 
     fig = plt.figure(constrained_layout=True, figsize=figsize)
     
     gs = GridSpec(nrow,
-                  ncol, 
+                  2, 
                   figure=fig,
-                  width_ratios=[0.9, 0.1], 
+                  width_ratios=[0.95, 0.05], 
                   height_ratios=[1/nrow for _ in range(nrow)])                
             
     groups_unique = np.unique(adata.obs[groups])
@@ -122,9 +112,9 @@ def bar(adata: anndata.AnnData,
         
         for i, g in enumerate(groups_unique):
             if height is 'median':
-                h = np.median(adata[adata.obs[groups] == g].obsm[c][m])
+                h = np.median(adata[adata.obs[groups] == g].obsm[values][m])
             elif height is 'mean':
-                h = np.mean(adata[adata.obs[groups] == g].obsm[c][m])
+                h = np.mean(adata[adata.obs[groups] == g].obsm[values][m])
             else:
                 raise(NameError('Wrong height parameter. Valid options: median, mean.'))
             

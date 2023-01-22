@@ -13,7 +13,6 @@ The source code is available on GitHub_.
 
 .. toctree::
    :caption: Documentation
-   :maxdepth: 1
    :hidden:
 
    installation
@@ -21,13 +20,12 @@ The source code is available on GitHub_.
    api
    
 .. toctree::
+   :maxdepth: 4
    :caption: Tutorials
-   :maxdepth: 1
-   :hidden:
    
    notebooks/getting-started
-   notebooks/human-bone-marrow
    notebooks/hair-follicle
+   notebooks/human-bone-marrow
    notebooks/unimodal
    
 .. _GitHub: https://github.com/TabakaLab/ocelli

@@ -119,11 +119,7 @@ def LDA(adata: ad.AnnData,
                                     random_state=random_state,
                                     n_jobs=n_jobs)
 
-    X_lda = lda.fit_transform(adata.X if x is None else adata.obsm[x])
-        
-    adata.obsm[out] = pd.DataFrame(X_lda, 
-                                   index=list(adata.obs.index), 
-                                   columns=['Topic {}'.format(i) for i in range(n_components)])
+    adata.obsm[out] = lda.fit_transform(adata.X if x is None else adata.obsm[x])
     adata.varm[out] = lda.components_.T
     adata.uns['{}_params'.format(out)] = {'n_components': n_components, 
                                           'doc_topic_prior': doc_topic_prior,

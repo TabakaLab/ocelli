@@ -72,9 +72,8 @@ def modality_generation(adata: anndata.AnnData,
             
     modalities = np.unique(list(d_topic_assignment.keys()))
 
-    adata.obsm[weights] = pd.DataFrame(np.asarray(adata.obsm[topics])[:, modalities]/np.asarray(adata.obsm[topics])[:, modalities].sum(axis=1)[:,None],
-                                             index=list(adata.obs.index), 
-                                             columns=['modality{}'.format(m) for m in modalities])
+    adata.obsm[weights] = pd.DataFrame(adata.obsm[topics][:, modalities]/adata.obsm[topics][:, modalities].sum(axis=1)[:,None],
+                                       index=list(adata.obs.index), columns=['modality{}'.format(m) for m in modalities])
     
     for m in modalities:
         arg_sorted = np.argsort(adata.varm[topics][d_topic_assignment[m], m])[-n_features:]
@@ -85,7 +84,7 @@ def modality_generation(adata: anndata.AnnData,
 
     topic_counter = 0
     for m in modalities:
-        v = adata.X[:, d_topic_assignment[m]] if obsm_key is None else np.asarray(adata.obsm[obsm_key])[:, d_topic_assignment[m]]
+        v = adata.X[:, d_topic_assignment[m]] if obsm_key is None else adata.obsm[obsm_key][:, d_topic_assignment[m]]
         
         if issparse(v):
             v = v.toarray()

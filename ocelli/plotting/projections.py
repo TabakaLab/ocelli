@@ -1,6 +1,7 @@
 import ocelli as oci
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import matplotlib as mpl
 from matplotlib.lines import Line2D
 from matplotlib.gridspec import GridSpec
@@ -114,20 +115,26 @@ def projections(adata,
                               theta=theta, 
                               random_state=random_state)
             
+            df = pd.DataFrame(adata.obsm['X_proj_phi{}_theta{}'.format(phi, theta)], columns=['x', 'y'])
+            df['c'] = colors
+            df = df.sample(frac=1)
             
             if is_discrete:
                 groups = np.unique(colors)
                 if cdict is None:
-                    cdict = {g: plt.get_cmap('jet')(j / (groups.shape[0] - 1)) for j, g in enumerate(groups)}
+                    if groups.shape[0] > 1:
+                        cdict = {g: plt.get_cmap('jet')(j / (groups.shape[0] - 1)) for j, g in enumerate(groups)}
+                    else:
+                        cdict = {g: '#000000' for g in groups}
 
                 ax = fig.add_subplot(gs[i, 2*j])
                 ax.set_title('phi={} theta={}'.format(phi, theta) if title is None else title, fontsize=fontsize)
                 ax.set_aspect('equal')
                 ax.axis('off')
-                ax.scatter(x=adata.obsm['X_proj_phi{}_theta{}'.format(phi, theta)][:, 0], 
-                           y=adata.obsm['X_proj_phi{}_theta{}'.format(phi, theta)][:, 1],  
+                ax.scatter(x=df['x'], 
+                           y=df['y'],  
                            s=markersize, 
-                           c=[cdict[color] for color in colors],
+                           c=[cdict[color] for color in df['c']],
                            edgecolor='none')
 
                 if showlegend:
@@ -149,10 +156,10 @@ def projections(adata,
                 ax.set_title('phi={} theta={}'.format(phi, theta) if title is None else title, fontsize=fontsize)
                 ax.set_aspect('equal')
                 ax.axis('off')
-                sc = ax.scatter(x=adata.obsm['X_proj_phi{}_theta{}'.format(phi, theta)][:, 0], 
-                                y=adata.obsm['X_proj_phi{}_theta{}'.format(phi, theta)][:, 1], 
+                sc = ax.scatter(x=df['x'], 
+                                y=df['y'], 
                                 s=markersize, 
-                                c=colors,
+                                c=df['c'],
                                 cmap=cmap, 
                                 edgecolor='none',
                                 vmin=vmin if vmin is not None else np.min(colors), 
