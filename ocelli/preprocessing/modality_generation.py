@@ -86,21 +86,15 @@ def modality_generation(adata: anndata.AnnData,
     for m in modalities:
         v = adata.X[:, d_topic_assignment[m]] if obsm_key is None else adata.obsm[obsm_key][:, d_topic_assignment[m]]
         
-        if issparse(v):
-            v = v.toarray()
+        v = v.toarray() if issparse(v) else v
             
         if log_norm:
-            x = anndata.AnnData(v)
+            v = anndata.AnnData(v)
             
-            old_stdout = sys.stdout # prevent any prints from scanpy
-            sys.stdout = open(os.devnull, "w")
+            scp.pp.normalize_total(v, target_sum=10000)
+            scp.pp.log1p(v)
             
-            scp.pp.normalize_total(x, target_sum=10000)
-            scp.pp.log1p(x)
-            
-            sys.stdout = old_stdout
-            
-            v = x.X
+            v = v.X
 
         adata.obsm['modality{}'.format(m)] = v
         adata.uns['modalities'].append('modality{}'.format(m))
