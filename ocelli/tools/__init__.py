@@ -8,6 +8,7 @@ from .UMAP import UMAP
 from .projection import projection
 from .mean_z_scores import mean_z_scores
 from .louvain import louvain
+from .imputation import imputation
 
 __all__ = [
     'weights', 
@@ -19,5 +20,6 @@ __all__ = [
     'UMAP',
     'projection',
     'mean_z_scores',
-    'louvain'
+    'louvain', 
+    'imputation'
 ]

@@ -12,10 +12,12 @@ def scatter(adata: anndata.AnnData,
             x: str,
             markersize: float = 1.,
             c: str = None,
-            cdict = None,
+            cdict: dict = None,
             cmap = None,
             vmin = None,
             vmax = None,
+            xlim: tuple = None,
+            ylim: tuple = None,
             figsize = None,
             ncols: int = 4,
             fontsize: int = 6,
@@ -48,6 +50,10 @@ def scatter(adata: anndata.AnnData,
         Applied when color scheme is continuous. Lower bound of color scheme. (default: :obj:`None`)
     vmax
         Applied when color scheme is continuous. Upper bound of color scheme. (default: :obj:`None`)
+    xlim
+        Restrict x-limits of the axis. (default: :obj:`None`)
+    ylim
+        Restrict y-limits of the axis. (default: :obj:`None`)
     figsize
         Plot figure size. (default: :obj:`None`)
     ncols
@@ -148,6 +154,10 @@ def scatter(adata: anndata.AnnData,
             ax.set_title(col if title is None else title, fontsize=fontsize)
             ax.set_aspect('equal')
             ax.axis('off')
+            if xlim is not None:
+                ax.set_xlim(xlim)
+            if ylim is not None:
+                ax.set_ylim(ylim)
             ax.scatter(x=df['x'], y=df['y'], s=markersize, c=[cdict[key] for key in df[col]], edgecolor='none')
             
             if showlegend:
@@ -169,6 +179,10 @@ def scatter(adata: anndata.AnnData,
             ax.set_title(col if title is None else title, fontsize=fontsize)
             ax.set_aspect('equal')
             ax.axis('off')
+            if xlim is not None:
+                ax.set_xlim(xlim)
+            if ylim is not None:
+                ax.set_ylim(ylim)
             sc = ax.scatter(x=df['x'], y=df['y'], s=markersize, c=df[col], cmap=cmap, edgecolor='none',
                             vmin=vmin if vmin is not None else np.min(df[col]), 
                             vmax=vmax if vmax is not None else np.max(df[col]))

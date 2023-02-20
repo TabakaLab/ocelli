@@ -16,7 +16,7 @@ def violin(adata: ad.AnnData,
            markerscale: float = 1.,
            save: str = None,
            dpi: int = 300):
-    """Feature vioolin plots
+    """Feature violin plots
     
     Generates violin plots showing distributions of feature values taken from `adata.obs` or `adata.obsm`.
     Separate violin plots are created for different groups/clusters of cells as defined by `adata.obs[groups]`.

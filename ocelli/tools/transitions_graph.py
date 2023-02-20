@@ -1,6 +1,9 @@
 import anndata as ad
 import numpy as np
 from scipy.sparse import issparse
+from multiprocessing import cpu_count
+from sklearn.neighbors import NearestNeighbors
+from tqdm import tqdm
 
 
 def transitions_graph(adata: ad.AnnData,

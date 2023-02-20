@@ -50,6 +50,8 @@ def MDM(adata: ad.AnnData,
         bandwidth_reach: int = 20,
         unimodal_norm: bool = True,
         eigval_times_eigvec: bool = True,
+        save_eigvec: bool = False,
+        save_eigval: bool = False,
         save_mmc: bool = False,
         n_jobs: int = -1,
         random_state = None,
@@ -75,30 +77,36 @@ def MDM(adata: ad.AnnData,
     bandwidth_reach
         Index of nearest neighbor used for calculating epsilons. (default: 20)
     unimodal_norm
-        If ``True``, unimodal kernel matrices are normalized mid-training. (default: `True`)
+        If `True`, unimodal kernel matrices are normalized mid-training. (default: `True`)
     eigval_times_eigvec
-        If ``True``, the MDM embedding is calculated by multiplying
+        If `True`, the MDM embedding is calculated by multiplying
         eigenvectors by eigenvalues. Otherwise, the embedding consists of eigenvectors. (default: `True`)
     save_mmc
-        If ``True``, the multimodal Markov chain array is saved to ``adata.uns['multimodal_markov_chain']``. (default: `False`)
+        If `True`, the multimodal Markov chain array is saved to `adata.uns['multimodal_markov_chain']`. (default: `False`)
+    save_eigvec
+        If `True`, eigenvectors are saved to `adata.uns['eigenvectors']`. (default: `False`)
+    save_eigval
+        If `True`, eigenvalues are saved to `adata.uns['eigenvalues']`. (default: `False`)
     n_jobs
         The number of parallel jobs. If the number is larger than the number of CPUs, it is changed to -1.
         -1 means all processors are used. (default: -1)
     random_state
         Pass an :obj:`int` for reproducible results across multiple function calls. (default: :obj:`None`)
     verbose
-        Print progress notifications. (default: ``False``)
+        Print progress notifications. (default: `False`)
     copy
-        Return a copy of :class:`anndata.AnnData`. (default: ``False``)
+        Return a copy of :class:`anndata.AnnData`. (default: `False`)
 
     Returns
     -------
     :obj:`None`
         By default (`copy=False`), updates `adata` with the following fields:
         `adata.obsm[out]` (MDM embedding),
-        `adata.uns['mmc']` (if `save_mmc = True`, multimodal Markov chain).
+        `adata.uns['mmc']` (if `save_mmc = True`, multimodal Markov chain),
+        `adata.uns['eigenvectors']` (if `save_eigvec = True`, eigenvectors),
+        `adata.uns['eigenvalues']` (if `save_eigval = True`, eigenvalues).
     :class:`anndata.AnnData`
-        When ``copy=True`` is set, a copy of ``adata`` with those fields is returned.
+        When `copy=True` is set, a copy of `adata` with those fields is returned.
     """
 
     modality_names = adata.uns['modalities'] if modalities is None else modalities
@@ -156,8 +164,14 @@ def MDM(adata: ad.AnnData,
         v0 = None
         
     eigvals, eigvecs = eigsh(multiM, k=n_components + 11, which='LA', maxiter=100000, v0=v0)
-    eigvals, eigvecs = np.flip(eigvals)[1:n_components + 1], np.flip(eigvecs, axis=1)[:, 1:n_components + 1]
+    eigvals = np.flip(eigvals)[1:n_components + 1]
+    eigvecs = np.flip(eigvecs, axis=1)[:, 1:n_components + 1]
     
+    if save_eigvec:
+        adata.uns['eigenvectors'] = eigvecs
+    if save_eigval:
+        adata.uns['eigenvalues'] = eigvals
+        
     adata.obsm[out] = eigvecs * eigvals if eigval_times_eigvec else eigvecs
 
     if verbose:

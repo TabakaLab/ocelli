@@ -9,7 +9,7 @@ def projection(adata: ad.AnnData,
                out: str = 'X_proj',
                random_state = None,
                copy: bool = False):
-    """2D projection of 3D data
+    """Graphical projection of 3D data
 
     Projecting 3D embedding onto a 2D plane may result
     in a better visualization when compared to generating a 2D plot.

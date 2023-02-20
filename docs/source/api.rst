@@ -46,6 +46,13 @@ Tools (tl)
    
    tl.MDM
    
+**Multimodal imputation**
+
+.. autosummary::
+   :toctree: .  
+   
+   tl.imputation
+   
    
 **Graph representations**
 

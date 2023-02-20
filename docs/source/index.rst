@@ -7,9 +7,7 @@ Ocelli
 
 The source code is available on GitHub_.
 
-.. image:: images/simulated-data.png
-.. image:: images/human-bone-marrow.png
-.. image:: images/hair-follicle.png
+.. image:: images/homepage.pdf
 
 .. toctree::
    :caption: Documentation
