@@ -7,7 +7,7 @@ Ocelli
 
 The source code is available on GitHub_.
 
-.. image:: images/homepage.pdf
+.. image:: images/homepage.jpg
 
 .. toctree::
    :caption: Documentation
