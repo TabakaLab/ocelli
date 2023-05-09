@@ -41,8 +41,7 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Topic :: Scientific/Engineering :: Bio-Informatics",
-        "Topic :: Scientific/Engineering :: Visualization",
-    ],
+        "Topic :: Scientific/Engineering :: Visualization",],
     packages=find_packages(),
     package_data={
         "ocelli": ["forceatlas2/forceatlas2.jar", "forceatlas2/gephi-toolkit-0.9.2-all.jar"]
