@@ -2,11 +2,8 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../..'))
 
-
-# -- Project information -----------------------------------------------------
-
 project = 'Ocelli'
-copyright = '2022, Piotr Rutkowski'
+copyright = '2023, Piotr Rutkowski'
 author = 'Piotr Rutkowski'
 
 release = '0.1.1'
@@ -22,7 +19,6 @@ extensions = [
 ]
 
 autosummary_generate = True
-
 napoleon_google_docstring = True
 napoleon_numpy_docstring = True
 napoleon_include_init_with_doc = False
@@ -41,8 +37,6 @@ napoleon_attr_annotations = True
 templates_path = ['_templates']
 
 exclude_patterns = []
-
-# -- Options for HTML output -------------------------------------------------
 
 html_theme = 'sphinx_rtd_theme'
 

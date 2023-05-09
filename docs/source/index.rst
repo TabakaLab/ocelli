@@ -1,13 +1,13 @@
 Ocelli
 ==================================
 
-**Ocelli** is a computational tool for visualizing multimodal single-cell developmental data. It includes a novel Multimodal Diffusion Maps algorithm for embedding multimodal datasets into low-dimensional latent spaces.
+**Ocelli** is a lightweight Python package for scalable visualization and exploration of developmental multimodal single-cell data.
 
 *Ocelli (singular Ocellus, Latin: little eye) – simple eyes found in many insects in triplets. Their function is to navigate insects during the day or to detect movement.*
 
 The source code is available on GitHub_.
 
-.. image:: images/homepage.jpg
+.. image:: images/figure_documentation100.jpeg
 
 .. toctree::
    :caption: Documentation
@@ -27,3 +27,4 @@ The source code is available on GitHub_.
    notebooks/unimodal
    
 .. _GitHub: https://github.com/TabakaLab/ocelli
+

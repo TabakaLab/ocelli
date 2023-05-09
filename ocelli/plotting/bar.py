@@ -111,9 +111,9 @@ def bar(adata: anndata.AnnData,
         ax.tick_params(axis='y', which='major', labelsize=fontsize)
         
         for i, g in enumerate(groups_unique):
-            if height is 'median':
+            if height == 'median':
                 h = np.median(adata[adata.obs[groups] == g].obsm[values][m])
-            elif height is 'mean':
+            elif height == 'mean':
                 h = np.mean(adata[adata.obs[groups] == g].obsm[values][m])
             else:
                 raise(NameError('Wrong height parameter. Valid options: median, mean.'))

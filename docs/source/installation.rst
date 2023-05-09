@@ -1,25 +1,34 @@
 Installation
 ------------
 
-Ocelli was written for Python 3.7.
+Ocelli was written for Python 3.7+.
 
-Dependencies
-^^^^^^^^^^^^
+The source code is available on `GitHub <https://github.com/TabakaLab/ocelli>`_. Ocelli is in active development. If you notice any bugs in installation or when running code, please submit bug reports by opening an `issue <https://github.com/TabakaLab/ocelli/issues>`_.
 
-ForceAtlas2 requires the Java Development Kit. On Linux, download it and install by running::
+Installation steps
+^^^^^^^^^^^^^^^^^^
 
-    sudo apt update
-    sudo apt install default-jdk
+#. Install Java
+
+    Force-directed layout graph visualization requires Java. You can download Java installation files `here <https://www.java.com/en/download/>`_.
     
-For maximum performance of ``nmslib``'s approximated nearest neighbors search, install the package from sources::
+    Alternatively, on Linux, you can install Java using ::
 
-    pip install --no-binary :all: nmslib
+        sudo apt update
+        sudo apt install default-jdk
 
-PyPI
-^^^^
+#. Install NMSLIB library
+    
+    `NMSLIB <https://pypi.org/project/nmslib/>`_ library is utilized for efficient computation of approximate nearest neighbors. For maximum performance, install the package from sources ::
 
-Pull Ocelli from PyPI_ using (consider using `pip3` to access Python 3)::
+        pip3 install --no-binary :all: nmslib
+        
+    Installation on ARM-based Macs (with M1/M2 chips) is problematic, as a compatible release is not available yet. The installation can be executed with the following script, but it may affect the performance. ::
+    
+        CFLAGS="-mavx -DWARN(a)=(a)" pip3 install --no-binary :all: nmslib
 
-    pip install ocelli
+#. Install Ocelli from PyPI
+    
+    Pull Ocelli from `PyPI <https://pypi.org/project/ocelli>`_ using ::
 
-.. _PyPI: https://pypi.org/project/ocelli
+        pip3 install ocelli
