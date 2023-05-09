@@ -1,4 +1,4 @@
-version: 1
+version: 2
 
 python:
   install:
@@ -17,3 +17,5 @@ build:
 
 sphinx:
    configuration: docs/source/conf.py
+
+formats: all
