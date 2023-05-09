@@ -23,21 +23,35 @@ Preprocessing (pp)
 .. autosummary::
    :toctree: .
 
-   pp.latent_dirichlet_allocation
-   pp.generate_views
+   pp.LDA
+   pp.modality_generation
    
 
 Tools (tl)
 ----------
 
-**Multi-view diffusion maps**
+**Multimodal weights**
 
 .. autosummary::
    :toctree: .
    
    tl.weights
    tl.scale_weights
-   tl.multi_view_diffusion_maps
+
+
+**Multimodal Diffusion Maps**
+
+.. autosummary::
+   :toctree: .  
+   
+   tl.MDM
+   
+**Multimodal imputation**
+
+.. autosummary::
+   :toctree: .  
+   
+   tl.imputation
    
    
 **Graph representations**
@@ -45,23 +59,31 @@ Tools (tl)
 .. autosummary::
    :toctree: .
    
-   tl.nn_graph
-   tl.vel_graph
+   tl.neighbors_graph
+   tl.transitions_graph
    
-**Plotting tools**
+**Dimension reduction**
 
 .. autosummary::
    :toctree: .
    
-   tl.forceatlas2
-   tl.project_2d
+   tl.FA2
+   tl.UMAP
+   tl.projection
 
 **Gene signatures**
 
 .. autosummary::
    :toctree: .
    
-   tl.z_scores
+   tl.mean_z_scores
+   
+**Clustering**
+
+.. autosummary::
+   :toctree: .
+   
+   tl.louvain
    
    
 Plotting (pl)
@@ -71,5 +93,8 @@ Plotting (pl)
    :toctree: .
    
    pl.scatter
-   pl.weights
-   pl.topics
+   pl.scatter_interactive
+   pl.projections
+   pl.violin
+   pl.bar
+   

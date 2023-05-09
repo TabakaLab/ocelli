@@ -4,7 +4,6 @@ nbsphinx>=0.7
 setuptools
 sphinx_rtd_theme>=0.3
 sphinx_autodoc_typehints<=1.6
-
 anndata
 matplotlib
 nmslib
@@ -15,3 +14,6 @@ ray
 scikit-learn
 scipy
 statsmodels
+umap-learn
+scanpy
+louvain

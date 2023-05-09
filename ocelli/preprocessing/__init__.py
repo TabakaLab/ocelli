@@ -1,8 +1,9 @@
 from .neighbors import neighbors
-from .topic_modelling import latent_dirichlet_allocation, generate_views
+from .LDA import LDA
+from .modality_generation import modality_generation
 
 __all__ = [
     'neighbors',
-    'latent_dirichlet_allocation',
-    'generate_views'
+    'LDA',
+    'modality_generation'
 ]

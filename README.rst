@@ -1,6 +1,8 @@
 Ocelli – Single-cell developmental landscapes from multimodal data
 ==================================================================
 
-Ocelli is a comprehensive workflow for the visualization of multimodal developmental data. It includes a novel multi-view diffusion maps algorithm for embedding multimodal datasets into low-dimensional latent spaces.
+Ocelli is a lightweight Python package for scalable visualization and exploration of developmental multimodal single-cell data.
 
-Please read the `documentation <https://ocelli.readthedocs.io>`_.
+Ocelli is in active development. If you notice any bugs in installation or when running code, please submit bug reports by opening a issue on GitHub.
+
+The documentation is available `here <https://ocelli.readthedocs.io>`_.

@@ -1,16 +1,25 @@
-from .weights import weights, scale_weights
-from .mvdm import multi_view_diffusion_maps
-from .graphs import nn_graph, vel_graph
-from .visualizations import forceatlas2, project_2d
-from .signatures import z_scores
+from .weights import weights
+from .scale_weights import scale_weights
+from .MDM import MDM
+from .neighbors_graph import neighbors_graph
+from .transitions_graph import transitions_graph
+from .FA2 import FA2
+from .UMAP import UMAP
+from .projection import projection
+from .mean_z_scores import mean_z_scores
+from .louvain import louvain
+from .imputation import imputation
 
 __all__ = [
     'weights', 
     'scale_weights',
-    'multi_view_diffusion_maps',
-    'nn_graph',
-    'vel_graph', 
-    'forceatlas2',
-    'z_scores', 
-    'project_2d'
+    'MDM',
+    'neighbors_graph',
+    'transitions_graph',
+    'FA2',
+    'UMAP',
+    'projection',
+    'mean_z_scores',
+    'louvain', 
+    'imputation'
 ]
