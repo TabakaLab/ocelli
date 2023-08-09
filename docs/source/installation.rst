@@ -27,8 +27,8 @@ Installation steps
     
         CFLAGS="-mavx -DWARN(a)=(a)" pip3 install --no-binary :all: nmslib
 
-#. Install Ocelli from PyPI
+#. Install Ocelli
     
-    Pull Ocelli from `PyPI <https://pypi.org/project/ocelli>`_ using ::
+    Pull Ocelli from `GitHub <https://github.com/TabakaLab/ocelli>`_ using ::
 
-        pip3 install ocelli
+        pip3 install -U git+https://github.com/TabakaLab/ocelli.git@main

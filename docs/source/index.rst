@@ -7,7 +7,7 @@ Ocelli
 
 The source code is available on GitHub_.
 
-.. image:: images/figure_documentation100.jpeg
+.. image:: images/figure_documentation.jpeg
 
 .. toctree::
    :caption: Documentation
@@ -21,10 +21,10 @@ The source code is available on GitHub_.
    :maxdepth: 4
    :caption: Tutorials
    
-   notebooks/getting-started
-   notebooks/hair-follicle
-   notebooks/human-bone-marrow
-   notebooks/unimodal
+   notebooks/tutorial1
+   notebooks/tutorial2
+   notebooks/tutorial3
+   notebooks/tutorial4
    
 .. _GitHub: https://github.com/TabakaLab/ocelli
 
