@@ -1,23 +1,23 @@
 import anndata as ad
-from scipy.sparse import lil_matrix, diags
+from scipy.sparse import issparse, csr_matrix
 import numpy as np
-from tqdm import tqdm
 import warnings
-
 
 # mute warnings concerning sparse matrices
 warnings.filterwarnings('ignore')
 
 
 def imputation(adata: ad.AnnData, 
-               t: int = 5, 
+               t: int = 5,
+               kappa: float = 1.,
                features: list = None, 
                eigvals: str = 'eigenvalues',
                eigvecs: str = 'eigenvectors',
+               scale: float = 1.,
                copy: bool = False):
     """Multimodal count matrix imputation
     
-    Iteratively imputes a count matrix using the MDM affinity matrix.
+    Iteratively imputes a count matrix using the multimodal eigenvectors and eigenvalues.
     
     Parameters
     ----------
@@ -25,6 +25,9 @@ def imputation(adata: ad.AnnData,
         The annotated data matrix.
     t
         A number of imputation iterations. (default: 5)
+    kappa
+        High values of `kappa` increase the imputed signal 
+        while preserving the maximum expression value. (default: 1)
     features
         `adata.X` columns (indexed with `adata.var.index` names) that will be imputed.
         If :obj:`None`, all columns are taken. (default: :obj:`None`)
@@ -32,6 +35,9 @@ def imputation(adata: ad.AnnData,
         `adata.uns` key storing eigenvalues. (default: `eigenvalues`)
     eigvecs
         `adata.uns` key storing eigenvectors. (default: `eigenvectors`)
+    scale
+        High values of `scale` increase the imputed signal 
+        together with the maximum expression value. (default: 1.)
     copy
         Return a copy of :class:`anndata.AnnData`. (default: `False`)
         
@@ -51,11 +57,17 @@ def imputation(adata: ad.AnnData,
         raise(NameError('No eigenvalues found in adata.uns[\'{}\'].'.format(eigvecs)))
 
     features = list(adata.var.index) if features is None else list(features)
+        
+    eigvals_t = adata.uns[eigvals]**t
+    imputed = (adata.uns[eigvecs] * eigvals_t) @ (adata.uns[eigvecs].T @ adata[:, features].X)
     
-    imputed = lil_matrix(adata.uns[eigvecs]).dot(diags(adata.uns[eigvals]**t)).dot(
-        lil_matrix(adata.uns[eigvecs]).T.dot(adata[:, features].X))
+    max_values = adata[:, features].X.max(axis=0)
+    if issparse(max_values):
+        max_values = max_values.toarray().flatten()
     
-    scaling_factors = adata[:, features].X.max(axis=0).toarray().flatten() / imputed.max(axis=0).toarray().flatten()
-    adata[:, features].X = imputed.multiply(scaling_factors)
+    scaling_factors = kappa * max_values / imputed.max(axis=0)
+    imputed = scale * np.clip(imputed * scaling_factors, 0, max_values)
 
+    adata[:, features].X = csr_matrix(imputed) if issparse(adata.X) else imputed
+    
     return adata if copy else None

@@ -79,7 +79,8 @@ def modality_generation(adata: anndata.AnnData,
         arg_sorted = np.argsort(adata.varm[topics][d_topic_assignment[m], m])[-n_features:]
         d_topic_assignment[m] = np.asarray(d_topic_assignment[m])[arg_sorted]
 
-    obsm_key = adata.uns['{}_params'.format(topics)]['x']
+    obsm_key = adata.uns['{}_params'.format(topics)]['x'] if 'x' in adata.uns['{}_params'.format(topics)] else None
+    
     adata.uns['modalities'] = list()
 
     topic_counter = 0
