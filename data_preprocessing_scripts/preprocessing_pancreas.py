@@ -14,4 +14,4 @@ adata.uns = {}
 adata.obsm = {}
 adata.obsp = {}
 
-adata.write('pancreas_RNAseq.h5ad', compression='gzip', compression_opts=9)
+adata.write('pancreas_rna.h5ad', compression='gzip', compression_opts=9)

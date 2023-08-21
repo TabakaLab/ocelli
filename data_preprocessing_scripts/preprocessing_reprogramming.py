@@ -42,7 +42,7 @@ adata.obs = adata.obs[['origin', 'day']]
 adata.var = adata.var[[]]
 adata.layers = {}
 
-adata.write('reprogramming_RNAseq.h5ad', compression='gzip', compression_opts=9)
+adata.write('reprogramming_rna.h5ad', compression='gzip', compression_opts=9)
 
 paths = ['serum_8.0_8.25.h5ad', 'serum_8.25_8.5.h5ad',  'serum_8.5_8.75.h5ad', 
          'serum_8.75_9.0.h5ad', 'serum_9.0_9.5.h5ad', 'serum_9.5_10.0.h5ad', 

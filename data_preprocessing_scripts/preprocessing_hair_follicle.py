@@ -71,7 +71,7 @@ df.columns = ['gene', 'pearson']
 discarded_genes = list(df[df.pearson > 0.18]['gene'])
 rna_seq = rna_seq[:, ~rna_seq.var.index.isin(discarded_genes)]
 
-rna_seq.write('hair_follicle_RNAseq.h5ad', compression='gzip', compression_opts=9)
+rna_seq.write('hair_follicle_rna.h5ad', compression='gzip', compression_opts=9)
 
 # preprocess ATAC-seq
 
@@ -79,6 +79,7 @@ rna_seq.write('hair_follicle_RNAseq.h5ad', compression='gzip', compression_opts=
 atac_seq = sc.read_mtx('fragments_matrix.mtx.gz')
 atac_seq = atac_seq.T
 atac_seq.obs = pd.read_csv('CellIDS.txt', index_col='colnames(mat)')
+atac_seq.obs.index = list(rna_seq.obs.index)
 atac_seq.var = pd.read_csv('genes.txt', index_col='rownames(mat)')
 
 rna_seq_indices = rna_seq.obs.index
@@ -92,4 +93,4 @@ atac_seq.var.index = [str(el) for el in atac_seq.var.index]
 sc.pp.filter_genes(atac_seq, min_counts=50)
 atac_seq = atac_seq[:, ~atac_seq.var.index.isin(discarded_genes)]
 
-atac_seq.write('hair_follicle_ATACseq.h5ad', compression='gzip', compression_opts=9)
+atac_seq.write('hair_follicle_atac.h5ad', compression='gzip', compression_opts=9)
