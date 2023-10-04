@@ -3,6 +3,7 @@ from scipy.sparse import issparse, csr_matrix
 import numpy as np
 import warnings
 
+
 # mute warnings concerning sparse matrices
 warnings.filterwarnings('ignore')
 
@@ -15,7 +16,7 @@ def imputation(adata: ad.AnnData,
                eigvecs: str = 'eigenvectors',
                scale: float = 1.,
                copy: bool = False):
-    """Multimodal count matrix imputation
+    """Diffusion-based multimodal imputation
     
     Iteratively imputes a count matrix using the multimodal eigenvectors and eigenvalues.
     
