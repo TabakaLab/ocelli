@@ -25,6 +25,8 @@ The source code is available on GitHub_.
    notebooks/tutorial2
    notebooks/tutorial3
    notebooks/tutorial4
+   notebooks/tutorial5
+   notebooks/tutorial6
    
 .. _GitHub: https://github.com/TabakaLab/ocelli
 
