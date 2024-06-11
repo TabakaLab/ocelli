@@ -66,7 +66,8 @@ def imputation(adata: ad.AnnData,
     if issparse(max_values):
         max_values = max_values.toarray().flatten()
     
-    scaling_factors = kappa * max_values / imputed.max(axis=0)
+    imputed_max = [x if x > 0 else 1 for x in imputed.max(axis=0)]
+    scaling_factors = kappa * max_values / imputed_max
     imputed = scale * np.clip(imputed * scaling_factors, 0, max_values)
 
     adata[:, features].X = csr_matrix(imputed) if issparse(adata.X) else imputed
