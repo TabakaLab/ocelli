@@ -71,6 +71,7 @@ def imputation(adata: ad.AnnData,
     imputed = scale * np.clip(imputed * scaling_factors, 0, max_values)
 
     adata[:, features].X = csr_matrix(imputed) if issparse(adata.X) else imputed
+    adata.X.data = np.nan_to_num(adata.X.data, copy=False)
     adata.X.eliminate_zeros()
     
     return adata if copy else None
