@@ -50,8 +50,8 @@ def MDM(adata: ad.AnnData,
         bandwidth_reach: int = 20,
         unimodal_norm: bool = True,
         eigval_times_eigvec: bool = True,
-        save_eigvec: bool = False,
-        save_eigval: bool = False,
+        save_eigvec: bool = True,
+        save_eigval: bool = True,
         save_mmc: bool = False,
         n_jobs: int = -1,
         random_state = None,
@@ -84,9 +84,9 @@ def MDM(adata: ad.AnnData,
     save_mmc
         If `True`, the multimodal Markov chain array is saved to `adata.uns['multimodal_markov_chain']`. (default: `False`)
     save_eigvec
-        If `True`, eigenvectors are saved to `adata.uns['eigenvectors']`. (default: `False`)
+        If `True`, eigenvectors are saved to `adata.uns['eigenvectors']`. (default: `True`)
     save_eigval
-        If `True`, eigenvalues are saved to `adata.uns['eigenvalues']`. (default: `False`)
+        If `True`, eigenvalues are saved to `adata.uns['eigenvalues']`. (default: `True`)
     n_jobs
         The number of parallel jobs. If the number is larger than the number of CPUs, it is changed to -1.
         -1 means all processors are used. (default: -1)
