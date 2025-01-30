@@ -1,100 +1,58 @@
-.. automodule:: ocelli
-
 API
 ===
 
-Import Ocelli as::
+Import Ocelli as: ::
 
-   import ocelli as oci
+    import ocelli as oci
 
-
-Preprocessing (pp)
-------------------
-
-**Nearest neighbors**
+Data reading (`read`)
+^^^^^^^^^^^^^^^^^^^^^
 
 .. autosummary::
-   :toctree: .
+   :toctree: generated
+   :recursive:
 
-   pp.neighbors 
-   
-**Topic modeling**
-   
-.. autosummary::
-   :toctree: .
+   ocelli.read.h5ad
 
-   pp.LDA
-   pp.modality_generation
-   
-
-Tools (tl)
-----------
-
-**Multimodal weights**
+Preprocessing (`pp`)
+^^^^^^^^^^^^^^^^^^^^
 
 .. autosummary::
-   :toctree: .
-   
-   tl.weights
-   tl.scale_weights
+   :toctree: generated
+   :recursive:
 
+   ocelli.pp.neighbors
+   ocelli.pp.lda
+   ocelli.pp.generate_modalities
 
-**Multimodal Diffusion Maps**
-
-.. autosummary::
-   :toctree: .  
-   
-   tl.MDM
-   
-**Multimodal imputation**
+Tools (`tl`)
+^^^^^^^^^^^^
 
 .. autosummary::
-   :toctree: .  
-   
-   tl.imputation
-   
-   
-**Graph representations**
+   :toctree: generated
+   :recursive:
+
+   ocelli.tl.modality_weights
+   ocelli.tl.scale_weights
+   ocelli.tl.MDM
+   ocelli.tl.imputation
+   ocelli.tl.neighbors_graph
+   ocelli.tl.transitions_graph
+   ocelli.tl.fa2
+   ocelli.tl.umap
+   ocelli.tl.zscores
+   ocelli.tl.louvain
+   ocelli.tl.projection
+
+Plotting (`pl`)
+^^^^^^^^^^^^^^^
 
 .. autosummary::
-   :toctree: .
-   
-   tl.neighbors_graph
-   tl.transitions_graph
-   
-**Dimension reduction**
+   :toctree: generated
+   :recursive:
 
-.. autosummary::
-   :toctree: .
-   
-   tl.FA2
-   tl.UMAP
-   tl.projection
-
-**Gene signatures**
-
-.. autosummary::
-   :toctree: .
-   
-   tl.mean_z_scores
-   
-**Clustering**
-
-.. autosummary::
-   :toctree: .
-   
-   tl.louvain
-   
-   
-Plotting (pl)
--------------
-
-.. autosummary::
-   :toctree: .
-   
-   pl.scatter
-   pl.scatter_interactive
-   pl.projections
-   pl.violin
-   pl.bar
-   
+   ocelli.pl.scatter
+   ocelli.pl.scatter_interactive
+   ocelli.pl.violin
+   ocelli.pl.bar
+   ocelli.pl.projections
