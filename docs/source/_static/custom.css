@@ -1,0 +1,16 @@
+div.output {
+    background-color: #CFD6DC !important; /* Force white background */
+    color: #000000 !important; /* Force black text */
+    border: 1px solid #ddd !important; /* Add a light border */
+    padding: 10px !important;
+    border-radius: 5px !important;
+}
+
+/* Handle inline and preformatted outputs */
+div.output_area pre {
+    background-color: #CFD6DC !important; /* Light gray background */
+    color: #333 !important; /* Dark text */
+    padding: 10px !important;
+    border-radius: 5px !important;
+    border: 1px solid #ccc !important;
+}

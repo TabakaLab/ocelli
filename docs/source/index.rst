@@ -1,5 +1,5 @@
 Ocelli
-==================================
+======
 
 **Ocelli** is a lightweight Python package for scalable visualization and exploration of developmental multimodal single-cell data.
 
@@ -10,11 +10,10 @@ The source code is available on GitHub_.
 .. image:: images/figure_documentation.jpeg
 
 .. toctree::
+   :maxdepth: 4
    :caption: Documentation
-   :hidden:
 
    installation
-   usage_principles
    api
    
 .. toctree::
@@ -27,6 +26,6 @@ The source code is available on GitHub_.
    notebooks/tutorial4
    notebooks/tutorial5
    notebooks/tutorial6
+   notebooks/tutorial7
    
 .. _GitHub: https://github.com/TabakaLab/ocelli
-
