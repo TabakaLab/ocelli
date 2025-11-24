@@ -115,7 +115,7 @@ def neighbors(adata: ad.AnnData,
             try:
                 neigh = NMSLIB(adata.obsm[m], n_neighbors, n_jobs)
             except ValueError:
-                raise(ValueError('The value n_neighbors={} is too high for NMSLIB. Practically, 20-50 neighbors are usually enough.'.format(n_neighbors)))
+                raise(ValueError('The value n_neighbors={} is too high for NMSLIB. In practice, 20-50 neighbors are usually enough.'.format(n_neighbors)))
                 
             adata.obsm['neighbors_{}'.format(m)] = neigh[0]
             adata.obsm['distances_{}'.format(m)] = neigh[1]
