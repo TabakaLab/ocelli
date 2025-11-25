@@ -48,7 +48,7 @@ def lda(adata: ad.AnnData,
     :param max_iter: Maximum number of iterations over the dataset. (default: 30)
     :type max_iter: int
 
-    :param doc_topic_prior: Prior of the document-topic distribution. Defaults to `50 / n_components` if `None`. (default: `None`)
+    :param doc_topic_prior: Prior of the document-topic distribution. Defaults to `1 / n_components` if `None`. (default: `None`)
     :type doc_topic_prior: float or None
 
     :param topic_word_prior: Prior of the topic-word distribution. (default: 0.1)
