@@ -118,7 +118,7 @@ def lda(adata: ad.AnnData,
 
     n_jobs = cpu_count() if n_jobs == -1 else min([n_jobs, cpu_count()])
     
-    doc_topic_prior = 50/n_components if doc_topic_prior is None else doc_topic_prior
+    doc_topic_prior = 1/n_components if doc_topic_prior is None else doc_topic_prior
 
     lda = LatentDirichletAllocation(n_components=n_components, 
                                     doc_topic_prior=doc_topic_prior,
