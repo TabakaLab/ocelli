@@ -8,7 +8,7 @@ setup(
     python_requires='>=3.8',
     install_requires=['anndata==0.10.9', 
                       'matplotlib==3.9.4',
-                      'numpy==2.0.2',
+                      'numpy==1.26.4',
                       'pandas==2.2.3',
                       'plotly==6.0.0',
                       'ray==2.0.0',
